@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up JDK
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: Check formatting
+        run: ./mvnw -ntp -B spotless:check
+
+      # Unit tests, ArchUnit rules, integration tests (Testcontainers), coverage check.
+      - name: Verify
+        run: ./mvnw -ntp -B verify
+
+  # Guards against drift between the starter and its generator manifest/templates
+  # (generator.config.json, .generator/templates/): generates an app from this
+  # working tree with starter-generator and runs the app's own quality gates.
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up JDK
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@008330803749db0355799c700092d9a85fd074e9 # v6.0.9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Fetch starter-generator
+        run: |
+          git clone --depth 1 https://github.com/JoanRoucoux/starter-generator "$RUNNER_TEMP/starter-generator"
+          pnpm install --frozen-lockfile --dir "$RUNNER_TEMP/starter-generator"
+
+      # A different base package exercises the package renames and empty-directory pruning;
+      # the multi-word app name (ci-check) exercises the module renames.
+      - name: Generate an app from this working tree
+        run: node "$RUNNER_TEMP/starter-generator/index.mjs" "$RUNNER_TEMP/generated/ci-check-api" --template . --title "CI Check" --base-package com.acme.cicheck --skip-install --skip-git --yes
+
+      # Mirrors the generator's postInstall step (skipped above with --skip-install).
+      - name: Format the generated app
+        working-directory: ${{ runner.temp }}/generated/ci-check-api
+        run: |
+          chmod +x mvnw
+          ./mvnw -ntp -B spotless:apply
+
+      - name: Check the generated app (format, tests, architecture, build)
+        working-directory: ${{ runner.temp }}/generated/ci-check-api
+        run: |
+          ./mvnw -ntp -B spotless:check
+          ./mvnw -ntp -B verify

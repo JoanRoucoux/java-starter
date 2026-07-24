@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "starter": "java-starter-api",
+  "nameSuffix": "-api",
+  "prompts": ["basePackage"],
+  "copyIgnore": [
+    ".git",
+    ".idea",
+    ".vscode",
+    "target",
+    "starter-api/target",
+    "starter-core/target",
+    "starter-core/starter-domain/target",
+    "starter-core/starter-adapter/target",
+    "starter-schema/target",
+    ".claude/settings.local.json"
+  ],
+  "remove": [
+    "CHANGELOG.md",
+    "version.txt",
+    "LICENSE",
+    ".github/CODE_OF_CONDUCT.md",
+    ".github/CONTRIBUTING.md",
+    ".github/SECURITY.md",
+    ".github/ISSUE_TEMPLATE",
+    ".github/PULL_REQUEST_TEMPLATE.md",
+    ".github/workflows/release-please.yml"
+  ],
+  "rename": [
+    { "from": "starter-api", "to": "{{appName}}-api" },
+    { "from": "starter-core", "to": "{{appName}}-core" },
+    { "from": "starter-schema", "to": "{{appName}}-schema" },
+    { "from": "{{appName}}-core/starter-domain", "to": "{{appName}}-core/{{appName}}-domain" },
+    { "from": "{{appName}}-core/starter-adapter", "to": "{{appName}}-core/{{appName}}-adapter" },
+    {
+      "from": "{{appName}}-api/src/main/java/com/example/starter",
+      "to": "{{appName}}-api/src/main/java/{{basePackagePath}}"
+    },
+    {
+      "from": "{{appName}}-api/src/test/java/com/example/starter",
+      "to": "{{appName}}-api/src/test/java/{{basePackagePath}}"
+    },
+    {
+      "from": "{{appName}}-core/{{appName}}-domain/src/main/java/com/example/starter",
+      "to": "{{appName}}-core/{{appName}}-domain/src/main/java/{{basePackagePath}}"
+    },
+    {
+      "from": "{{appName}}-core/{{appName}}-domain/src/test/java/com/example/starter",
+      "to": "{{appName}}-core/{{appName}}-domain/src/test/java/{{basePackagePath}}"
+    },
+    {
+      "from": "{{appName}}-core/{{appName}}-adapter/src/main/java/com/example/starter",
+      "to": "{{appName}}-core/{{appName}}-adapter/src/main/java/{{basePackagePath}}"
+    },
+    {
+      "from": "{{appName}}-core/{{appName}}-adapter/src/test/java/com/example/starter",
+      "to": "{{appName}}-core/{{appName}}-adapter/src/test/java/{{basePackagePath}}"
+    }
+  ],
+  "replace": [
+    {
+      "file": "openapi/openapi.yaml",
+      "search": "java-starter-api API",
+      "value": "{{title}} API",
+      "optional": true
+    }
+  ],
+  "replaceAll": [
+    {
+      "extensions": [".java", ".xml", ".yml", ".yaml"],
+      "search": "com.example.starter",
+      "value": "{{basePackage}}"
+    },
+    { "extensions": [".xml"], "search": "starter-parent", "value": "{{appName}}-parent" },
+    { "extensions": [".xml"], "search": "starter-api", "value": "{{appName}}-api" },
+    { "extensions": [".xml"], "search": "starter-core", "value": "{{appName}}-core" },
+    { "extensions": [".xml"], "search": "starter-domain", "value": "{{appName}}-domain" },
+    { "extensions": [".xml"], "search": "starter-adapter", "value": "{{appName}}-adapter" },
+    { "extensions": [".xml"], "search": "starter-schema", "value": "{{appName}}-schema" },
+    { "extensions": [".yml"], "search": "starter-api", "value": "{{appName}}-api" }
+  ],
+  "openapiTarget": "openapi/openapi.yaml",
+  "install": {
+    "default": "./mvnw -ntp -B -DskipTests package",
+    "win32": ".\\mvnw.cmd -ntp -B -DskipTests package"
+  },
+  "postInstall": [
+    {
+      "default": "./mvnw -ntp -B spotless:apply",
+      "win32": ".\\mvnw.cmd -ntp -B spotless:apply"
+    }
+  ],
+  "nextSteps": [
+    "./mvnw verify                            (mvnw.cmd on Windows cmd; needs Docker)",
+    "./mvnw liquibase:update -pl {{appName}}-schema   (migrates the local PostgreSQL — the app never does this itself)",
+    "./mvnw spring-boot:run -pl {{appName}}-api   (starts PostgreSQL via compose.yaml)",
+    "Provided --openapi? Align PositionController with the regenerated interfaces (compile errors point the way)."
+  ]
+}
