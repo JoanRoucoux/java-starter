@@ -19,6 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
+      # Pinned to 21: palantir-java-format (Spotless) calls javac internals that changed in JDK 25.
       - name: Set up JDK
         uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
         with:
@@ -34,10 +35,19 @@ jobs:
         run: ./mvnw -ntp -B verify
 
   # Guards against drift between the starter and its generator manifest/templates
-  # (generator.config.json, .generator/templates/): generates an app from this
-  # working tree with starter-generator and runs the app's own quality gates.
+  # (generator.config.json, .generator/): generates applications from this working tree with
+  # starter-generator and runs their own quality gates. Both ends of the module matrix are
+  # exercised, because the variant without the schema module is a different set of files.
   generate:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - variant: full
+            modules: schema,batch
+          - variant: minimal
+            modules: ''
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -65,17 +75,30 @@ jobs:
       # A different base package exercises the package renames and empty-directory pruning;
       # the multi-word app name (ci-check) exercises the module renames.
       - name: Generate an app from this working tree
-        run: node "$RUNNER_TEMP/starter-generator/index.mjs" "$RUNNER_TEMP/generated/ci-check-api" --template . --title "CI Check" --base-package com.acme.cicheck --skip-install --skip-git --yes
+        run: >
+          node "$RUNNER_TEMP/starter-generator/index.mjs" "$RUNNER_TEMP/generated/ci-check"
+          --template . --title "CI Check" --base-package com.acme.cicheck
+          --modules "${{ matrix.modules }}" --skip-install --skip-git --yes
+
+      # No placeholder identity and no leftover generator marker may survive a generation.
+      - name: Check for leftovers
+        working-directory: ${{ runner.temp }}/generated/ci-check
+        run: |
+          # The [^a-z-] guard keeps Spring's own spring-boot-starter-* artifacts out of the match.
+          if grep -rnE --exclude-dir=target 'com\.example\.starter|(^|[^a-z-])starter-(core|api|schema|batch|aggregator)|module:(schema|batch)' .; then
+            echo '::error::placeholder identity or generator marker left in the generated app'
+            exit 1
+          fi
 
       # Mirrors the generator's postInstall step (skipped above with --skip-install).
       - name: Format the generated app
-        working-directory: ${{ runner.temp }}/generated/ci-check-api
+        working-directory: ${{ runner.temp }}/generated/ci-check
         run: |
           chmod +x mvnw
           ./mvnw -ntp -B spotless:apply
 
       - name: Check the generated app (format, tests, architecture, build)
-        working-directory: ${{ runner.temp }}/generated/ci-check-api
+        working-directory: ${{ runner.temp }}/generated/ci-check
         run: |
           ./mvnw -ntp -B spotless:check
           ./mvnw -ntp -B verify

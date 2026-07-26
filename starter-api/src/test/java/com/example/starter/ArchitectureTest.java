@@ -45,28 +45,6 @@ class ArchitectureTest {
     }
 
     @Test
-    void persistenceDoesNotDependOnTheClient() {
-        noClasses()
-                .that()
-                .resideInAPackage("..adapter.persistence..")
-                .should()
-                .dependOnClassesThat()
-                .resideInAPackage("..adapter.client..")
-                .check(CLASSES);
-    }
-
-    @Test
-    void clientDoesNotDependOnPersistence() {
-        noClasses()
-                .that()
-                .resideInAPackage("..adapter.client..")
-                .should()
-                .dependOnClassesThat()
-                .resideInAPackage("..adapter.persistence..")
-                .check(CLASSES);
-    }
-
-    @Test
     void adaptersUseTheDomainThroughItsPortsModelAndExceptionsOnly() {
         noClasses()
                 .that()

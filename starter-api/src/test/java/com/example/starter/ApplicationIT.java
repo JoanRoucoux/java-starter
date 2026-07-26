@@ -2,7 +2,6 @@ package com.example.starter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,7 +35,7 @@ class ApplicationIT {
 
     @Test
     void contextLoadsAndRejectsUnauthenticatedRequests() {
-        ResponseEntity<String> response = restTemplate.getForEntity("/position/" + UUID.randomUUID(), String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("/quote/US0378331005", String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }

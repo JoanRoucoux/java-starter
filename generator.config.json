@@ -1,18 +1,80 @@
 {
   "schema": 1,
-  "starter": "java-starter-api",
-  "nameSuffix": "-api",
+  "starter": "java-starter",
   "prompts": ["basePackage"],
+  "modules": {
+    "required": ["api", "core"],
+    "optional": [
+      {
+        "id": "schema",
+        "label": "schema",
+        "hint": "PostgreSQL persistence (JPA adapter) and the Liquibase changelogs that own its schema",
+        "default": true,
+        "markers": [
+          { "extensions": [".xml", ".md"], "start": "<!-- module:schema -->", "end": "<!-- /module:schema -->" },
+          { "extensions": [".yml", ".yaml"], "start": "# module:schema", "end": "# /module:schema" }
+        ],
+        "whenAbsent": {
+          "templates": "without-schema",
+          "remove": [
+            "compose.yaml",
+            "starter-schema",
+            "starter-core/src/main/java/com/example/starter/adapter/persistence",
+            "starter-core/src/main/java/com/example/starter/domain/model/Position.java",
+            "starter-core/src/main/java/com/example/starter/domain/model/PositionStatus.java",
+            "starter-core/src/main/java/com/example/starter/domain/port/in/CreatePositionUseCase.java",
+            "starter-core/src/main/java/com/example/starter/domain/port/in/GetPositionUseCase.java",
+            "starter-core/src/main/java/com/example/starter/domain/port/out/LoadPositionPort.java",
+            "starter-core/src/main/java/com/example/starter/domain/port/out/SavePositionPort.java",
+            "starter-core/src/main/java/com/example/starter/domain/service/PositionService.java",
+            "starter-core/src/test/java/com/example/starter/adapter/TestApplication.java",
+            "starter-core/src/test/java/com/example/starter/adapter/persistence",
+            "starter-core/src/test/java/com/example/starter/domain/service/PositionServiceTest.java",
+            "starter-api/src/main/java/com/example/starter/application/controller/PositionController.java",
+            "starter-api/src/main/java/com/example/starter/application/mapper/PositionRestMapper.java",
+            "starter-api/src/main/java/com/example/starter/infrastructure/config/PositionDomainConfig.java",
+            "starter-api/src/test/java/com/example/starter/application/controller/PositionControllerTest.java",
+            "starter-api/src/test/java/com/example/starter/PersistenceArchitectureTest.java",
+            "starter-api/src/test/java/com/example/starter/ApplicationIT.java",
+            "starter-api/src/test/java/com/example/starter/cucumber/CucumberSpringConfiguration.java"
+          ]
+        }
+      },
+      {
+        "id": "batch",
+        "label": "batch",
+        "hint": "Spring Batch application running jobs over the same hexagon (requires schema)",
+        "default": false,
+        "requires": ["schema"],
+        "markers": [
+          { "extensions": [".xml", ".md"], "start": "<!-- module:batch -->", "end": "<!-- /module:batch -->" }
+        ],
+        "whenAbsent": {
+          "remove": [
+            "starter-batch",
+            "starter-core/src/main/java/com/example/starter/domain/port/in/RevaluePositionUseCase.java",
+            "starter-core/src/main/java/com/example/starter/domain/port/out/LoadOpenPositionsPort.java",
+            "starter-core/src/main/java/com/example/starter/domain/service/RevaluePositionService.java",
+            "starter-core/src/main/java/com/example/starter/adapter/persistence/repository/OpenPositionJpaRepository.java",
+            "starter-core/src/main/java/com/example/starter/adapter/persistence/adapter/OpenPositionsPersistenceAdapter.java",
+            "starter-core/src/test/java/com/example/starter/domain/service/RevaluePositionServiceTest.java",
+            "starter-core/src/test/java/com/example/starter/adapter/persistence/adapter/OpenPositionsPersistenceAdapterIT.java",
+            "starter-schema/src/main/resources/db/changelog/changesets/002-spring-batch-metadata.xml",
+            "starter-schema/src/main/resources/db/changelog/sql"
+          ]
+        }
+      }
+    ]
+  },
   "copyIgnore": [
     ".git",
     ".idea",
     ".vscode",
     "target",
-    "starter-api/target",
     "starter-core/target",
-    "starter-core/starter-domain/target",
-    "starter-core/starter-adapter/target",
+    "starter-api/target",
     "starter-schema/target",
+    "starter-batch/target",
     ".claude/settings.local.json"
   ],
   "remove": [
@@ -27,11 +89,18 @@
     ".github/workflows/release-please.yml"
   ],
   "rename": [
-    { "from": "starter-api", "to": "{{appName}}-api" },
     { "from": "starter-core", "to": "{{appName}}-core" },
-    { "from": "starter-schema", "to": "{{appName}}-schema" },
-    { "from": "{{appName}}-core/starter-domain", "to": "{{appName}}-core/{{appName}}-domain" },
-    { "from": "{{appName}}-core/starter-adapter", "to": "{{appName}}-core/{{appName}}-adapter" },
+    { "from": "starter-api", "to": "{{appName}}-api" },
+    { "module": "schema", "from": "starter-schema", "to": "{{appName}}-schema" },
+    { "module": "batch", "from": "starter-batch", "to": "{{appName}}-batch" },
+    {
+      "from": "{{appName}}-core/src/main/java/com/example/starter",
+      "to": "{{appName}}-core/src/main/java/{{basePackagePath}}"
+    },
+    {
+      "from": "{{appName}}-core/src/test/java/com/example/starter",
+      "to": "{{appName}}-core/src/test/java/{{basePackagePath}}"
+    },
     {
       "from": "{{appName}}-api/src/main/java/com/example/starter",
       "to": "{{appName}}-api/src/main/java/{{basePackagePath}}"
@@ -41,26 +110,20 @@
       "to": "{{appName}}-api/src/test/java/{{basePackagePath}}"
     },
     {
-      "from": "{{appName}}-core/{{appName}}-domain/src/main/java/com/example/starter",
-      "to": "{{appName}}-core/{{appName}}-domain/src/main/java/{{basePackagePath}}"
+      "module": "batch",
+      "from": "{{appName}}-batch/src/main/java/com/example/starter",
+      "to": "{{appName}}-batch/src/main/java/{{basePackagePath}}"
     },
     {
-      "from": "{{appName}}-core/{{appName}}-domain/src/test/java/com/example/starter",
-      "to": "{{appName}}-core/{{appName}}-domain/src/test/java/{{basePackagePath}}"
-    },
-    {
-      "from": "{{appName}}-core/{{appName}}-adapter/src/main/java/com/example/starter",
-      "to": "{{appName}}-core/{{appName}}-adapter/src/main/java/{{basePackagePath}}"
-    },
-    {
-      "from": "{{appName}}-core/{{appName}}-adapter/src/test/java/com/example/starter",
-      "to": "{{appName}}-core/{{appName}}-adapter/src/test/java/{{basePackagePath}}"
+      "module": "batch",
+      "from": "{{appName}}-batch/src/test/java/com/example/starter",
+      "to": "{{appName}}-batch/src/test/java/{{basePackagePath}}"
     }
   ],
   "replace": [
     {
-      "file": "openapi/openapi.yaml",
-      "search": "java-starter-api API",
+      "file": "{{appName}}-api/openapi/openapi.yaml",
+      "search": "java-starter API",
       "value": "{{title}} API",
       "optional": true
     }
@@ -71,15 +134,17 @@
       "search": "com.example.starter",
       "value": "{{basePackage}}"
     },
-    { "extensions": [".xml"], "search": "starter-parent", "value": "{{appName}}-parent" },
-    { "extensions": [".xml"], "search": "starter-api", "value": "{{appName}}-api" },
-    { "extensions": [".xml"], "search": "starter-core", "value": "{{appName}}-core" },
-    { "extensions": [".xml"], "search": "starter-domain", "value": "{{appName}}-domain" },
-    { "extensions": [".xml"], "search": "starter-adapter", "value": "{{appName}}-adapter" },
-    { "extensions": [".xml"], "search": "starter-schema", "value": "{{appName}}-schema" },
-    { "extensions": [".yml"], "search": "starter-api", "value": "{{appName}}-api" }
+    { "extensions": [".xml"], "search": ">starter-aggregator<", "value": ">{{appName}}-aggregator<" },
+    { "extensions": [".xml"], "search": ">starter-core<", "value": ">{{appName}}-core<" },
+    { "extensions": [".xml"], "search": ">starter-api<", "value": ">{{appName}}-api<" },
+    { "extensions": [".xml"], "search": ">starter-schema<", "value": ">{{appName}}-schema<" },
+    { "extensions": [".xml"], "search": ">starter-batch<", "value": ">{{appName}}-batch<" },
+    { "extensions": [".xml"], "search": "starter-core.version", "value": "{{appName}}-core.version" },
+    { "extensions": [".xml"], "search": "starter-schema.version", "value": "{{appName}}-schema.version" },
+    { "extensions": [".yml"], "search": "starter-api", "value": "{{appName}}-api" },
+    { "module": "batch", "extensions": [".yml"], "search": "starter-batch", "value": "{{appName}}-batch" }
   ],
-  "openapiTarget": "openapi/openapi.yaml",
+  "openapiTarget": "{{appName}}-api/openapi/openapi.yaml",
   "install": {
     "default": "./mvnw -ntp -B -DskipTests package",
     "win32": ".\\mvnw.cmd -ntp -B -DskipTests package"
@@ -92,8 +157,15 @@
   ],
   "nextSteps": [
     "./mvnw verify                            (mvnw.cmd on Windows cmd; needs Docker)",
-    "./mvnw liquibase:update -pl {{appName}}-schema   (migrates the local PostgreSQL — the app never does this itself)",
-    "./mvnw spring-boot:run -pl {{appName}}-api   (starts PostgreSQL via compose.yaml)",
-    "Provided --openapi? Align PositionController with the regenerated interfaces (compile errors point the way)."
+    {
+      "module": "schema",
+      "text": "./mvnw liquibase:update -pl {{appName}}-schema   (migrates the local PostgreSQL — no application ever does this itself)"
+    },
+    "./mvnw spring-boot:run -pl {{appName}}-api",
+    {
+      "module": "batch",
+      "text": "./mvnw spring-boot:run -pl {{appName}}-batch   (runs the demo job, then exits)"
+    },
+    "Provided --openapi? Align the controllers with the regenerated interfaces (compile errors point the way)."
   ]
 }
