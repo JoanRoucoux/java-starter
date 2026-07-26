@@ -23,7 +23,8 @@
 
     <!-- Sibling modules are consumed by coordinates, never through ${project.version}: this
          module must still resolve them correctly once extracted into its own repository. -->
-    <starter-core.version>0.1.0-SNAPSHOT</starter-core.version>
+    <starter-domain.version>0.1.0-SNAPSHOT</starter-domain.version>
+    <starter-adapter.version>0.1.0-SNAPSHOT</starter-adapter.version>
     <starter-schema.version>0.1.0-SNAPSHOT</starter-schema.version>
 
     <archunit.version>1.4.1</archunit.version>
@@ -43,8 +44,16 @@
   <dependencies>
     <dependency>
       <groupId>com.example.starter</groupId>
-      <artifactId>starter-core</artifactId>
-      <version>${starter-core.version}</version>
+      <artifactId>starter-domain</artifactId>
+      <version>${starter-domain.version}</version>
+    </dependency>
+    <!-- Runtime only: adapters are wired into the context but invisible at compile time, so
+         the REST side can never reach into adapter internals, even by accident. -->
+    <dependency>
+      <groupId>com.example.starter</groupId>
+      <artifactId>starter-adapter</artifactId>
+      <version>${starter-adapter.version}</version>
+      <scope>runtime</scope>
     </dependency>
 
     <dependency>

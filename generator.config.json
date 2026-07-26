@@ -3,7 +3,7 @@
   "starter": "java-starter",
   "prompts": ["basePackage"],
   "modules": {
-    "required": ["api", "core"],
+    "required": ["api", "domain", "adapter"],
     "optional": [
       {
         "id": "schema",
@@ -19,17 +19,17 @@
           "remove": [
             "compose.yaml",
             "starter-schema",
-            "starter-core/src/main/java/com/example/starter/adapter/persistence",
-            "starter-core/src/main/java/com/example/starter/domain/model/Position.java",
-            "starter-core/src/main/java/com/example/starter/domain/model/PositionStatus.java",
-            "starter-core/src/main/java/com/example/starter/domain/port/in/CreatePositionUseCase.java",
-            "starter-core/src/main/java/com/example/starter/domain/port/in/GetPositionUseCase.java",
-            "starter-core/src/main/java/com/example/starter/domain/port/out/LoadPositionPort.java",
-            "starter-core/src/main/java/com/example/starter/domain/port/out/SavePositionPort.java",
-            "starter-core/src/main/java/com/example/starter/domain/service/PositionService.java",
-            "starter-core/src/test/java/com/example/starter/adapter/TestApplication.java",
-            "starter-core/src/test/java/com/example/starter/adapter/persistence",
-            "starter-core/src/test/java/com/example/starter/domain/service/PositionServiceTest.java",
+            "starter-adapter/src/main/java/com/example/starter/adapter/persistence",
+            "starter-domain/src/main/java/com/example/starter/domain/model/Position.java",
+            "starter-domain/src/main/java/com/example/starter/domain/model/PositionStatus.java",
+            "starter-domain/src/main/java/com/example/starter/domain/port/in/CreatePositionUseCase.java",
+            "starter-domain/src/main/java/com/example/starter/domain/port/in/GetPositionUseCase.java",
+            "starter-domain/src/main/java/com/example/starter/domain/port/out/LoadPositionPort.java",
+            "starter-domain/src/main/java/com/example/starter/domain/port/out/SavePositionPort.java",
+            "starter-domain/src/main/java/com/example/starter/domain/service/PositionService.java",
+            "starter-adapter/src/test/java/com/example/starter/adapter/TestApplication.java",
+            "starter-adapter/src/test/java/com/example/starter/adapter/persistence",
+            "starter-domain/src/test/java/com/example/starter/domain/service/PositionServiceTest.java",
             "starter-api/src/main/java/com/example/starter/application/controller/PositionController.java",
             "starter-api/src/main/java/com/example/starter/application/mapper/PositionRestMapper.java",
             "starter-api/src/main/java/com/example/starter/infrastructure/config/PositionDomainConfig.java",
@@ -52,13 +52,13 @@
         "whenAbsent": {
           "remove": [
             "starter-batch",
-            "starter-core/src/main/java/com/example/starter/domain/port/in/RevaluePositionUseCase.java",
-            "starter-core/src/main/java/com/example/starter/domain/port/out/LoadOpenPositionsPort.java",
-            "starter-core/src/main/java/com/example/starter/domain/service/RevaluePositionService.java",
-            "starter-core/src/main/java/com/example/starter/adapter/persistence/repository/OpenPositionJpaRepository.java",
-            "starter-core/src/main/java/com/example/starter/adapter/persistence/adapter/OpenPositionsPersistenceAdapter.java",
-            "starter-core/src/test/java/com/example/starter/domain/service/RevaluePositionServiceTest.java",
-            "starter-core/src/test/java/com/example/starter/adapter/persistence/adapter/OpenPositionsPersistenceAdapterIT.java",
+            "starter-domain/src/main/java/com/example/starter/domain/port/in/RevaluePositionUseCase.java",
+            "starter-domain/src/main/java/com/example/starter/domain/port/out/LoadOpenPositionsPort.java",
+            "starter-domain/src/main/java/com/example/starter/domain/service/RevaluePositionService.java",
+            "starter-adapter/src/main/java/com/example/starter/adapter/persistence/repository/OpenPositionJpaRepository.java",
+            "starter-adapter/src/main/java/com/example/starter/adapter/persistence/adapter/OpenPositionsPersistenceAdapter.java",
+            "starter-domain/src/test/java/com/example/starter/domain/service/RevaluePositionServiceTest.java",
+            "starter-adapter/src/test/java/com/example/starter/adapter/persistence/adapter/OpenPositionsPersistenceAdapterIT.java",
             "starter-schema/src/main/resources/db/changelog/changesets/002-spring-batch-metadata.xml",
             "starter-schema/src/main/resources/db/changelog/sql"
           ]
@@ -71,7 +71,8 @@
     ".idea",
     ".vscode",
     "target",
-    "starter-core/target",
+    "starter-domain/target",
+    "starter-adapter/target",
     "starter-api/target",
     "starter-schema/target",
     "starter-batch/target",
@@ -89,17 +90,26 @@
     ".github/workflows/release-please.yml"
   ],
   "rename": [
-    { "from": "starter-core", "to": "{{appName}}-core" },
+    { "from": "starter-domain", "to": "{{appName}}-domain" },
+    { "from": "starter-adapter", "to": "{{appName}}-adapter" },
     { "from": "starter-api", "to": "{{appName}}-api" },
     { "module": "schema", "from": "starter-schema", "to": "{{appName}}-schema" },
     { "module": "batch", "from": "starter-batch", "to": "{{appName}}-batch" },
     {
-      "from": "{{appName}}-core/src/main/java/com/example/starter",
-      "to": "{{appName}}-core/src/main/java/{{basePackagePath}}"
+      "from": "{{appName}}-domain/src/main/java/com/example/starter",
+      "to": "{{appName}}-domain/src/main/java/{{basePackagePath}}"
     },
     {
-      "from": "{{appName}}-core/src/test/java/com/example/starter",
-      "to": "{{appName}}-core/src/test/java/{{basePackagePath}}"
+      "from": "{{appName}}-domain/src/test/java/com/example/starter",
+      "to": "{{appName}}-domain/src/test/java/{{basePackagePath}}"
+    },
+    {
+      "from": "{{appName}}-adapter/src/main/java/com/example/starter",
+      "to": "{{appName}}-adapter/src/main/java/{{basePackagePath}}"
+    },
+    {
+      "from": "{{appName}}-adapter/src/test/java/com/example/starter",
+      "to": "{{appName}}-adapter/src/test/java/{{basePackagePath}}"
     },
     {
       "from": "{{appName}}-api/src/main/java/com/example/starter",
@@ -135,11 +145,13 @@
       "value": "{{basePackage}}"
     },
     { "extensions": [".xml"], "search": ">starter-aggregator<", "value": ">{{appName}}-aggregator<" },
-    { "extensions": [".xml"], "search": ">starter-core<", "value": ">{{appName}}-core<" },
+    { "extensions": [".xml"], "search": ">starter-domain<", "value": ">{{appName}}-domain<" },
+    { "extensions": [".xml"], "search": ">starter-adapter<", "value": ">{{appName}}-adapter<" },
     { "extensions": [".xml"], "search": ">starter-api<", "value": ">{{appName}}-api<" },
     { "extensions": [".xml"], "search": ">starter-schema<", "value": ">{{appName}}-schema<" },
     { "extensions": [".xml"], "search": ">starter-batch<", "value": ">{{appName}}-batch<" },
-    { "extensions": [".xml"], "search": "starter-core.version", "value": "{{appName}}-core.version" },
+    { "extensions": [".xml"], "search": "starter-domain.version", "value": "{{appName}}-domain.version" },
+    { "extensions": [".xml"], "search": "starter-adapter.version", "value": "{{appName}}-adapter.version" },
     { "extensions": [".xml"], "search": "starter-schema.version", "value": "{{appName}}-schema.version" },
     { "extensions": [".yml"], "search": "starter-api", "value": "{{appName}}-api" },
     { "module": "batch", "extensions": [".yml"], "search": "starter-batch", "value": "{{appName}}-batch" }

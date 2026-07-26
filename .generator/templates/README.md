@@ -55,11 +55,12 @@ Without an identity provider, activate the `local` profile to disable authentica
 
 ```
 pom.xml                    Aggregator only: <modules>, no inheritance
-{{appName}}-core/          The hexagon — a library, no Spring Boot application
-├── domain/                model/, exception/ (business/ holds BusinessException + its subclasses,
-│                          technical/ holds TechnicalException + its), port/in/ (use cases),
-│                          port/out/ (external providers, repositories), service/ — plain Java
-└── adapter/               client/ (properties/, config/, adapter/), persistence/ where applicable
+{{appName}}-domain/        model/, exception/ (business/ holds BusinessException + its subclasses,
+                           technical/ holds TechnicalException + its), port/in/ (use cases),
+                           port/out/ (external providers, repositories), service/ — plain Java,
+                           ZERO dependencies (a Maven guarantee, not just a convention)
+{{appName}}-adapter/       client/ (properties/, config/, adapter/), persistence/ where applicable —
+                           depends on {{appName}}-domain
 {{appName}}-api/           Spring Boot application: REST exposition
 ├── openapi/openapi.yaml   The REST contract (source of truth, edited first)
 ├── application/           controller/ (implements the generated interfaces), mapper/ (domain↔DTO,
@@ -70,11 +71,11 @@ pom.xml                    Aggregator only: <modules>, no inheritance
 {{appName}}-schema/        Liquibase changelogs (db/changelog/) — owns the schema, no Java code
 <!-- /module:schema -->
 <!-- module:batch -->
-{{appName}}-batch/         Spring Boot application: Spring Batch jobs over {{appName}}-core
+{{appName}}-batch/         Spring Boot application: Spring Batch jobs over {{appName}}-domain/{{appName}}-adapter
 <!-- /module:batch -->
 ```
 
-Dependency rules, enforced by ArchUnit on every build: the domain depends on nothing but the JDK; adapters implement the domain's outbound ports and reach the domain only through its ports, model and exceptions; the inbound side (controllers, wiring, jobs) depends on the inbound ports and never on an adapter or a service implementation. Errors map by family in the `@RestControllerAdvice` — `BusinessException` → 422, `TechnicalException` → 502; authentication and authorization (401/403) are handled by Spring Security.
+Dependency rules: `{{appName}}-domain` depends on nothing but the JDK (a Maven guarantee); `{{appName}}-adapter` implements the domain's outbound ports and reaches the domain only through its ports, model and exceptions (ArchUnit); `{{appName}}-api`/`{{appName}}-batch` depend on `{{appName}}-adapter` at **runtime scope only**, so neither can reach adapter internals even by accident. Errors map by family in the `@RestControllerAdvice` — `BusinessException` → 422, `TechnicalException` → 502; authentication and authorization (401/403) are handled by Spring Security.
 
 <!-- module:schema -->
 `{{appName}}-schema` is applied out-of-band (ops or pipeline, `liquibase:update`) — a running application **never** migrates the database itself. The application modules depend on it at **test scope only**, so their integration tests can migrate their own throwaway Testcontainers database with the real changelog.

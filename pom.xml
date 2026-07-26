@@ -14,7 +14,8 @@
        This list only decides what a build from the repository root covers; a module never
        references this file. Optional modules are framed by generator markers. -->
   <modules>
-    <module>starter-core</module>
+    <module>starter-domain</module>
+    <module>starter-adapter</module>
     <module>starter-api</module>
     <!-- module:schema -->
     <module>starter-schema</module>

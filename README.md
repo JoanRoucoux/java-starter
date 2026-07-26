@@ -5,7 +5,7 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-brightgreen)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Spring Boot starter for backends in **hexagonal architecture**, built as **separate modules you pick from**: `-api` (Spring Boot main + REST exposition) and `-core` (the hexagon: framework-free domain and its outbound adapters) always, plus `-schema` (Liquibase changelogs and the PostgreSQL persistence they own) when there is a database, and `-batch` (Spring Batch over the same hexagon) when there are jobs. Built to back a frontend application (see [angular-starter-web](https://github.com/JoanRoucoux/angular-starter-web)) and attach to a database and/or one or more external APIs.
+Spring Boot starter for backends in **hexagonal architecture**, built as **separate modules you pick from**: `-domain` (framework-free model, ports, services), `-adapter` (their implementations) and `-api` (Spring Boot main + REST exposition) always, plus `-schema` (Liquibase changelogs and the PostgreSQL persistence they own) when there is a database, and `-batch` (Spring Batch over the same hexagon) when there are jobs. Built to back a frontend application (see [angular-starter-web](https://github.com/JoanRoucoux/angular-starter-web)) and attach to a database and/or one or more external APIs.
 
 There is **no parent pom**. The `pom.xml` at the root only aggregates: no module inherits from it, each one is parented by `spring-boot-starter-parent` and carries its own dependencies and quality gates. A module can therefore be dropped — or moved to its own repository — without touching anything else.
 
@@ -55,12 +55,12 @@ Prerequisites: **JDK 21** and **Docker** (PostgreSQL via Testcontainers and Dock
 ```
 pom.xml                  Aggregator only: <modules>, no inheritance
 compose.yaml             Local PostgreSQL
-starter-core/            The hexagon — a library, no Spring Boot application
-├── domain/              model/, exception/ (business/ holds BusinessException + its subclasses,
-│                        technical/ holds TechnicalException + its), port/in/ (use cases),
-│                        port/out/ (repositories, external providers), service/ — plain Java
-└── adapter/             persistence/ (entity/, repository/, adapter/),
-                         client/ (properties/, config/, adapter/)
+starter-domain/          model/, exception/ (business/ holds BusinessException + its subclasses,
+                         technical/ holds TechnicalException + its), port/in/ (use cases),
+                         port/out/ (repositories, external providers), service/ — plain Java,
+                         ZERO dependencies (a Maven guarantee, not just a convention)
+starter-adapter/         persistence/ (entity/, repository/, adapter/),
+                         client/ (properties/, config/, adapter/) — depends on starter-domain
 starter-api/             Spring Boot application: REST exposition
 ├── openapi/openapi.yaml The REST contract (source of truth, edited first)
 ├── application/         controller/ (implements the generated interfaces), mapper/ (domain↔DTO,
@@ -68,14 +68,14 @@ starter-api/             Spring Boot application: REST exposition
 ├── infrastructure/      config/ (SecurityConfig, one XxxDomainConfig per slice — the composition root)
 └── generated/           openapi build output (never edited, never committed)
 starter-schema/          Liquibase changelogs (db/changelog/) — owns the schema, no Java code
-starter-batch/           Spring Boot application: Spring Batch jobs over starter-core
+starter-batch/           Spring Boot application: Spring Batch jobs over starter-domain/starter-adapter
 ```
 
-Dependency rules, enforced by ArchUnit on every build:
+Dependency rules:
 
-- `domain` depends on nothing but the JDK — no Spring, no JPA.
-- `adapter` implements the domain's outbound ports and reaches the domain only through its ports, model and exceptions — never the domain services. `persistence` and `client` never see each other.
-- The inbound side (`application`, `infrastructure`, and the batch's `job`) depends on the inbound ports, never on an adapter or on a service implementation. Since `domain` and `adapter` share one module, this rule — not a Maven scope — is what keeps the REST and batch sides out of adapter internals.
+- `starter-domain` depends on nothing but the JDK — no Spring, no JPA. Enforced by Maven itself: there is nothing on its classpath to depend on.
+- `starter-adapter` implements the domain's outbound ports and reaches the domain only through its ports, model and exceptions — never the domain services (ArchUnit). `persistence` and `client` never see each other (ArchUnit).
+- `starter-api` and `starter-batch` depend on `starter-adapter` at **runtime scope only** — adapters are wired into the context but invisible at compile time, so neither the REST side nor the batch side can reach adapter internals, even by accident.
 - Errors map by family in the `@RestControllerAdvice`: `BusinessException` → 422, `TechnicalException` → 502 (authentication and authorization — 401/403 — are handled by Spring Security's filter chain).
 - `starter-schema` is applied out-of-band (ops or pipeline, `liquibase:update`) — a running application **never** migrates the database. `starter-api` and `starter-batch` depend on it at **test scope only**, so their integration tests can migrate their own throwaway Testcontainers database with the real changelog.
 

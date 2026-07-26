@@ -12,74 +12,49 @@
   </parent>
 
   <groupId>com.example.starter</groupId>
-  <artifactId>starter-core</artifactId>
+  <artifactId>starter-domain</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>starter-core</name>
-  <description>Hexagon: framework-free domain (model, ports, services) and its outbound adapters</description>
+  <name>starter-domain</name>
+  <description>Business domain: model, ports and use case implementations — framework-free</description>
 
   <properties>
     <java.version>21</java.version>
-
-    <wiremock.version>3.13.0</wiremock.version>
-
     <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
     <spotless-maven-plugin.version>2.44.5</spotless-maven-plugin.version>
     <palantir-java-format.version>2.68.0</palantir-java-format.version>
   </properties>
 
+  <!-- ZERO compile-scope dependencies: pure Java, no Spring, no JPA. This is the strongest
+       guarantee in the hexagon — nothing on this module's classpath to accidentally depend on —
+       and the application module's ArchUnit tests check the same rule again once everything is
+       assembled. -->
   <dependencies>
-    <!-- RestClient + Jackson, without spring-boot-starter-web: no embedded server here.
-         The domain packages use none of this — ArchUnit keeps them framework-free. -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-json</artifactId>
-    </dependency>
-    <!-- module:schema -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <scope>runtime</scope>
-    </dependency>
-    <!-- /module:schema -->
-
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.wiremock</groupId>
-      <artifactId>wiremock-standalone</artifactId>
-      <version>${wiremock.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- module:schema -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-testcontainers</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>postgresql</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
+      <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
-    <!-- /module:schema -->
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <!-- The quality block below is intentionally identical in every module: without a shared
        parent, self-containedness is what lets a module move to its own repository. Keep the
-       copies in sync — see AGENTS.md. -->
+       copies in sync — see AGENTS.md. No Failsafe here: the domain has no *IT tests. -->
   <build>
     <plugins>
       <plugin>
@@ -97,27 +72,9 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>${jacoco-maven-plugin.version}</version>
-        <configuration>
-          <excludes>
-            <exclude>**/generated/**</exclude>
-            <exclude>**/Application.class</exclude>
-          </excludes>
-        </configuration>
         <executions>
           <execution>
             <id>prepare-agent</id>
@@ -126,47 +83,17 @@
             </goals>
           </execution>
           <execution>
-            <id>prepare-agent-integration</id>
-            <goals>
-              <goal>prepare-agent-integration</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>merge-coverage</id>
-            <phase>post-integration-test</phase>
-            <goals>
-              <goal>merge</goal>
-            </goals>
-            <configuration>
-              <fileSets>
-                <fileSet>
-                  <directory>${project.build.directory}</directory>
-                  <includes>
-                    <include>*.exec</include>
-                  </includes>
-                </fileSet>
-              </fileSets>
-              <destFile>${project.build.directory}/jacoco-merged.exec</destFile>
-            </configuration>
-          </execution>
-          <execution>
             <id>report</id>
-            <phase>verify</phase>
             <goals>
               <goal>report</goal>
             </goals>
-            <configuration>
-              <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
-            </configuration>
           </execution>
           <execution>
             <id>check-coverage</id>
-            <phase>verify</phase>
             <goals>
               <goal>check</goal>
             </goals>
             <configuration>
-              <dataFile>${project.build.directory}/jacoco-merged.exec</dataFile>
               <rules>
                 <rule>
                   <element>BUNDLE</element>

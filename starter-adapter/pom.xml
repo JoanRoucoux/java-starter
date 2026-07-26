@@ -12,11 +12,11 @@
   </parent>
 
   <groupId>com.example.starter</groupId>
-  <artifactId>starter-batch</artifactId>
+  <artifactId>starter-adapter</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>starter-batch</name>
-  <description>Spring Batch application: runs jobs over the same hexagon as the API</description>
+  <name>starter-adapter</name>
+  <description>Outbound adapters: persistence (JPA) and external API clients (RestClient)</description>
 
   <properties>
     <java.version>21</java.version>
@@ -24,10 +24,8 @@
     <!-- Sibling modules are consumed by coordinates, never through ${project.version}: this
          module must still resolve them correctly once extracted into its own repository. -->
     <starter-domain.version>0.1.0-SNAPSHOT</starter-domain.version>
-    <starter-adapter.version>0.1.0-SNAPSHOT</starter-adapter.version>
-    <starter-schema.version>0.1.0-SNAPSHOT</starter-schema.version>
 
-    <archunit.version>1.4.1</archunit.version>
+    <wiremock.version>3.13.0</wiremock.version>
 
     <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
     <spotless-maven-plugin.version>2.44.5</spotless-maven-plugin.version>
@@ -40,26 +38,23 @@
       <artifactId>starter-domain</artifactId>
       <version>${starter-domain.version}</version>
     </dependency>
-    <!-- Runtime only, exactly as in the API module: the job config depends on the domain's
-         ports only, never on the adapters that implement them. -->
-    <dependency>
-      <groupId>com.example.starter</groupId>
-      <artifactId>starter-adapter</artifactId>
-      <version>${starter-adapter.version}</version>
-      <scope>runtime</scope>
-    </dependency>
 
+    <!-- RestClient + Jackson, without spring-boot-starter-web: no embedded server here. -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-batch</artifactId>
+      <artifactId>spring-boot-starter-json</artifactId>
     </dependency>
-    <!-- Starts compose.yaml (PostgreSQL) on spring-boot:run; inactive in tests and packaged apps. -->
+    <!-- module:schema -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-docker-compose</artifactId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
       <scope>runtime</scope>
-      <optional>true</optional>
     </dependency>
+    <!-- /module:schema -->
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -67,24 +62,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.tngtech.archunit</groupId>
-      <artifactId>archunit</artifactId>
-      <version>${archunit.version}</version>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock-standalone</artifactId>
+      <version>${wiremock.version}</version>
       <scope>test</scope>
     </dependency>
-    <!-- Test-only, exactly as in the API module: the batch never migrates the database either,
-         it only needs the real changelog to build its own throwaway test schema. -->
-    <dependency>
-      <groupId>com.example.starter</groupId>
-      <artifactId>starter-schema</artifactId>
-      <version>${starter-schema.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.liquibase</groupId>
-      <artifactId>liquibase-core</artifactId>
-      <scope>test</scope>
-    </dependency>
+    <!-- module:schema -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-testcontainers</artifactId>
@@ -100,25 +83,14 @@
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- /module:schema -->
   </dependencies>
 
+  <!-- The quality block below is intentionally identical in every module: without a shared
+       parent, self-containedness is what lets a module move to its own repository. Keep the
+       copies in sync — see AGENTS.md. -->
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>repackage</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- The quality block below is intentionally identical in every module: without a shared
-           parent, self-containedness is what lets a module move to its own repository. Keep the
-           copies in sync — see AGENTS.md. -->
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
@@ -152,8 +124,6 @@
         <configuration>
           <excludes>
             <exclude>**/generated/**</exclude>
-            <exclude>**/Application.class</exclude>
-            <exclude>**/BatchApplication.class</exclude>
           </excludes>
         </configuration>
         <executions>
