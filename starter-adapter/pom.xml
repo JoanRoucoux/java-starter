@@ -25,10 +25,10 @@
          module must still resolve them correctly once extracted into its own repository. -->
     <starter-domain.version>0.1.0-SNAPSHOT</starter-domain.version>
 
-    <wiremock.version>3.13.0</wiremock.version>
+    <wiremock.version>3.13.2</wiremock.version>
 
-    <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
-    <spotless-maven-plugin.version>2.44.5</spotless-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
+    <spotless-maven-plugin.version>3.8.0</spotless-maven-plugin.version>
     <palantir-java-format.version>2.68.0</palantir-java-format.version>
   </properties>
 

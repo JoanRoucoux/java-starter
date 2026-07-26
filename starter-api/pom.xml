@@ -27,17 +27,17 @@
     <starter-adapter.version>0.1.0-SNAPSHOT</starter-adapter.version>
     <starter-schema.version>0.1.0-SNAPSHOT</starter-schema.version>
 
-    <archunit.version>1.4.1</archunit.version>
-    <wiremock.version>3.13.0</wiremock.version>
+    <archunit.version>1.4.2</archunit.version>
+    <wiremock.version>3.13.2</wiremock.version>
     <!-- Pinned to the exact Cucumber release built against junit-jupiter 5.12.2 — the version
          spring-boot-dependencies 3.5.4 manages via its junit-bom import. A newer Cucumber needs a
          newer JUnit Platform than that BOM provides (NoClassDefFoundError at test discovery,
          since this project's dependencyManagement always wins the version, never Cucumber's own). -->
-    <cucumber.version>7.23.0</cucumber.version>
+    <cucumber.version>7.34.6</cucumber.version>
 
-    <openapi-generator-maven-plugin.version>7.12.0</openapi-generator-maven-plugin.version>
-    <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
-    <spotless-maven-plugin.version>2.44.5</spotless-maven-plugin.version>
+    <openapi-generator-maven-plugin.version>7.24.0</openapi-generator-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
+    <spotless-maven-plugin.version>3.8.0</spotless-maven-plugin.version>
     <palantir-java-format.version>2.68.0</palantir-java-format.version>
   </properties>
 
