@@ -168,6 +168,7 @@
     }
   ],
   "nextSteps": [
+    "Install lefthook (https://lefthook.dev) then run `lefthook install`   (pre-commit Spotless auto-format)",
     "./mvnw verify                            (mvnw.cmd on Windows cmd; needs Docker)",
     {
       "module": "schema",

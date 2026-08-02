@@ -8,7 +8,7 @@ There is no parent pom: the root `pom.xml` only aggregates, and every module is 
 
 | Tool                                     | Role                                                        |
 | ---------------------------------------- | ----------------------------------------------------------- |
-| Spring Boot 3.5 / Java 21                | Application framework, Maven modules with wrapper           |
+| Spring Boot 3.5 / Java 25                | Application framework, Maven modules with wrapper           |
 | openapi-generator (contract-first)       | `{{appName}}-api/openapi/openapi.yaml` → interfaces + DTOs  |
 | Spring Security (OAuth2 resource server) | Stateless JWT validation                                    |
 | RestClient                               | External API client adapter (timeouts via properties)       |
@@ -24,7 +24,7 @@ There is no parent pom: the root `pom.xml` only aggregates, and every module is 
 
 ## Getting started
 
-Prerequisites: **JDK 21** and **Docker**. Maven comes with the wrapper (`./mvnw`, `mvnw.cmd` on Windows cmd).
+Prerequisites: **JDK 25** and **Docker**. Maven comes with the wrapper (`./mvnw`, `mvnw.cmd` on Windows cmd).
 
 ```bash
 ./mvnw verify                                        # build + unit/integration tests + architecture + coverage
@@ -99,7 +99,7 @@ The demo features are reference implementations of a full hexagonal slice — us
 
 ## Quality and conventions
 
-- Formatting: Spotless with palantir-java-format — `./mvnw spotless:apply` / `spotless:check`. Run Maven on JDK 21–24 (palantir-java-format does not support the JDK 25 javac internals yet; CI pins 21).
+- Formatting: Spotless with palantir-java-format — `./mvnw spotless:apply` / `spotless:check`. A [lefthook](https://lefthook.dev) pre-commit hook runs `spotless:apply` and re-stages the result automatically (`lefthook install` once after cloning).
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org).
 <!-- module:schema -->
 - Schema changes only through `{{appName}}-schema`'s Liquibase changelogs, applied out-of-band (`ddl-auto: validate` — never by an application).

@@ -1,7 +1,7 @@
 # java-starter
 
 [![CI](https://github.com/JoanRoucoux/java-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/JoanRoucoux/java-starter/actions/workflows/ci.yml)
-![Java](https://img.shields.io/badge/Java-21-orange)
+![Java](https://img.shields.io/badge/Java-25-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-brightgreen)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
@@ -13,7 +13,7 @@ There is **no parent pom**. The `pom.xml` at the root only aggregates: no module
 
 | Tool                                     | Role                                                         |
 | ---------------------------------------- | ------------------------------------------------------------ |
-| Spring Boot 3.5 / Java 21                | Application framework, Maven modules with wrapper            |
+| Spring Boot 3.5 / Java 25                | Application framework, Maven modules with wrapper            |
 | openapi-generator (contract-first)       | `openapi/openapi.yaml` → generated interfaces + DTOs         |
 | Spring Security (OAuth2 resource server) | Stateless JWT validation                                     |
 | Spring Data JPA + PostgreSQL             | Persistence adapter (`schema` module)                        |
@@ -39,7 +39,7 @@ Module directories, Maven artifactIds and the Java base package take your applic
 
 ## Getting started
 
-Prerequisites: **JDK 21** and **Docker** (PostgreSQL via Testcontainers and Docker Compose). Maven comes with the wrapper.
+Prerequisites: **JDK 25** and **Docker** (PostgreSQL via Testcontainers and Docker Compose). Maven comes with the wrapper.
 
 ```bash
 ./mvnw verify                                # build + unit/integration tests + architecture + coverage
@@ -105,8 +105,8 @@ The same spec can drive the frontend's generated client (Orval in angular-starte
 ## Quality and conventions
 
 - Everything in the repo is written in **English** (code, comments, docs, commit messages).
-- Formatting: Spotless with palantir-java-format — `./mvnw spotless:apply` / `spotless:check`. Run Maven on JDK 21–24 (palantir-java-format does not support the JDK 25 javac internals yet; CI pins 21).
-- Commits follow [Conventional Commits](https://www.conventionalcommits.org). There are no local git hooks: CI and release-please are the gates.
+- Formatting: Spotless with palantir-java-format — `./mvnw spotless:apply` / `spotless:check`. A [lefthook](https://lefthook.dev) pre-commit hook runs `spotless:apply` and re-stages the result automatically (`lefthook install` once after cloning).
+- Commits follow [Conventional Commits](https://www.conventionalcommits.org): CI and release-please rely on them.
 - `spring.jpa.hibernate.ddl-auto: validate` — the schema only changes through `starter-schema`'s Liquibase changelogs, applied out-of-band (never by an application).
 
 ## Contributing

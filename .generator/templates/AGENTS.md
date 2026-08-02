@@ -4,7 +4,7 @@ Guidance for AI coding agents working in this repository. See the [README](READM
 
 ## Project
 
-{{title}} — Spring Boot 3.5 / Java 21 backend in hexagonal architecture, generated from java-starter with these modules: **{{modules}}**. Base package: `{{basePackage}}`.
+{{title}} — Spring Boot 3.5 / Java 25 backend in hexagonal architecture, generated from java-starter with these modules: **{{modules}}**. Base package: `{{basePackage}}`.
 
 **There is no parent pom.** The root `pom.xml` is an aggregator (`<modules>` only) and no module declares it as a `<parent>`; each module is parented by `spring-boot-starter-parent` with an empty `<relativePath/>` and carries its own dependencies, versions and quality plugins. The duplication of the quality block (Spotless, JaCoCo, Failsafe) across modules is **deliberate** — it is what makes a module extractable into its own repository. Keep the copies in sync; do not factor them out into the root.
 
@@ -36,7 +36,7 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 ## Conventions
 
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org).
-- Formatting is Spotless/palantir; records for immutable data; constructor injection without Lombok.
+- Formatting is Spotless/palantir; records for immutable data; constructor injection without Lombok. A [lefthook](https://lefthook.dev) pre-commit hook runs `spotless:apply` and re-stages the result automatically (`lefthook install` once after cloning).
 - Sibling modules are depended on through an explicit version property (`{{appName}}-domain.version` and friends), never `${project.version}` — that would silently mean the wrong thing once a module is extracted.
 <!-- module:schema -->
 - Schema changes only through `{{appName}}-schema`'s Liquibase changesets (`ddl-auto: validate` will fail otherwise). Changeset ids are sequential and descriptive (`003-add-index`).
@@ -58,7 +58,6 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 
 ## Gotchas
 
-- **Run Maven on JDK 21–24**: palantir-java-format calls javac internals that changed in JDK 25 (`NoSuchMethodError` in Spotless). CI pins Temurin 21.
 - The aggregator declares the Spotless plugin although it holds no Java: `spotless:check` from the root resolves the plugin prefix per project and fails on any project that lacks it.
 <!-- module:schema -->
 - The demo table is named `positions` (plural): `POSITION` is a reserved word in PostgreSQL.

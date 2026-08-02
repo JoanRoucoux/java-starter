@@ -19,17 +19,18 @@
   <description>Outbound adapters: persistence (JPA) and external API clients (RestClient)</description>
 
   <properties>
-    <java.version>21</java.version>
+    <java.version>25</java.version>
 
     <!-- Sibling modules are consumed by coordinates, never through ${project.version}: this
          module must still resolve them correctly once extracted into its own repository. -->
     <starter-domain.version>0.1.0-SNAPSHOT</starter-domain.version>
 
     <wiremock.version>3.13.0</wiremock.version>
+    <testcontainers.version>1.21.4</testcontainers.version>
 
     <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
-    <spotless-maven-plugin.version>2.44.5</spotless-maven-plugin.version>
-    <palantir-java-format.version>2.68.0</palantir-java-format.version>
+    <spotless-maven-plugin.version>3.9.0</spotless-maven-plugin.version>
+    <palantir-java-format.version>2.96.0</palantir-java-format.version>
   </properties>
 
   <dependencies>

@@ -19,7 +19,7 @@
   <description>Spring Boot application: REST exposition (contract-first) and wiring</description>
 
   <properties>
-    <java.version>21</java.version>
+    <java.version>25</java.version>
 
     <!-- Sibling modules are consumed by coordinates, never through ${project.version}: this
          module must still resolve them correctly once extracted into its own repository. -->
@@ -29,6 +29,7 @@
 
     <archunit.version>1.4.1</archunit.version>
     <wiremock.version>3.13.0</wiremock.version>
+    <testcontainers.version>1.21.4</testcontainers.version>
     <!-- Pinned to the exact Cucumber release built against junit-jupiter 5.12.2 — the version
          spring-boot-dependencies 3.5.4 manages via its junit-bom import. A newer Cucumber needs a
          newer JUnit Platform than that BOM provides (NoClassDefFoundError at test discovery,
@@ -37,8 +38,8 @@
 
     <openapi-generator-maven-plugin.version>7.12.0</openapi-generator-maven-plugin.version>
     <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
-    <spotless-maven-plugin.version>2.44.5</spotless-maven-plugin.version>
-    <palantir-java-format.version>2.68.0</palantir-java-format.version>
+    <spotless-maven-plugin.version>3.9.0</spotless-maven-plugin.version>
+    <palantir-java-format.version>2.96.0</palantir-java-format.version>
   </properties>
 
   <dependencies>

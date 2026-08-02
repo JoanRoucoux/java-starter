@@ -4,7 +4,7 @@ Guidance for AI coding agents working in this repository. See the [README](READM
 
 ## Project
 
-Spring Boot 3.5 / Java 21 starter for backends in hexagonal architecture, built to back a frontend application and attach to PostgreSQL and/or external APIs. The placeholder identity is `com.example.starter` / `starter-*`: the generator renames modules, artifactIds and packages at generation time.
+Spring Boot 3.5 / Java 25 starter for backends in hexagonal architecture, built to back a frontend application and attach to PostgreSQL and/or external APIs. The placeholder identity is `com.example.starter` / `starter-*`: the generator renames modules, artifactIds and packages at generation time.
 
 **There is no parent pom.** The root `pom.xml` is an aggregator (`<modules>` only) and no module declares it as a `<parent>`; each module is parented by `spring-boot-starter-parent` with an empty `<relativePath/>` and carries its own dependencies, versions and quality plugins. The duplication of the quality block (Spotless, JaCoCo, Failsafe) across modules is **deliberate** — it is what makes a module extractable into its own repository. Keep the copies in sync; do not "factor them out" into the root.
 
@@ -44,8 +44,8 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 ## Conventions
 
 - Everything in the repo is written in **English** (code, comments, docs, commit messages).
-- Commits follow [Conventional Commits](https://www.conventionalcommits.org). No local git hooks: CI and release-please rely on the messages.
-- Formatting is Spotless/palantir; records for immutable data; constructor injection without Lombok.
+- Commits follow [Conventional Commits](https://www.conventionalcommits.org): CI and release-please rely on the messages.
+- Formatting is Spotless/palantir; records for immutable data; constructor injection without Lombok. A [lefthook](https://lefthook.dev) pre-commit hook runs `spotless:apply` and re-stages the result automatically (`lefthook install` once after cloning).
 - Schema changes only through `starter-schema`'s Liquibase changesets (`ddl-auto: validate` will fail otherwise). Changeset ids are sequential and descriptive (`003-add-index`, author `starter`).
 - Sibling modules are depended on through an explicit version property (`${starter-domain.version}`, `${starter-adapter.version}`, …), never `${project.version}` — that would silently mean the wrong thing once a module is extracted.
 
@@ -77,7 +77,6 @@ Keep them in sync with the starter:
 
 ## Gotchas
 
-- **Run Maven on JDK 21–24**: palantir-java-format calls javac internals that changed in JDK 25 (`NoSuchMethodError` in Spotless). CI pins Temurin 21.
 - The aggregator declares the Spotless plugin although it holds no Java: `spotless:check` from the root resolves the plugin prefix per project and fails on any project that lacks it.
 - The table is named `positions` (plural): `POSITION` is a reserved word in PostgreSQL.
 - **`starter-schema` stays a test-scope dependency of the application modules only** — never add it (or `liquibase-core`) to `starter-domain`/`starter-adapter`, and never widen its scope past `test`. An application must never be able to migrate the database itself; only the integration tests do, deliberately.
