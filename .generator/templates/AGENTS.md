@@ -4,7 +4,7 @@ Guidance for AI coding agents working in this repository. See the [README](READM
 
 ## Project
 
-{{title}} — Spring Boot 3.5 / Java 25 backend in hexagonal architecture, generated from java-starter with these modules: **{{modules}}**. Base package: `{{basePackage}}`.
+{{title}} — Spring Boot 4.1 / Java 25 backend in hexagonal architecture, generated from java-starter with these modules: **{{modules}}**. Base package: `{{basePackage}}`.
 
 **There is no parent pom.** The root `pom.xml` is an aggregator (`<modules>` only) and no module declares it as a `<parent>`; each module is parented by `spring-boot-starter-parent` with an empty `<relativePath/>` and carries its own dependencies, versions and quality plugins. The duplication of the quality block (Spotless, JaCoCo, Failsafe) across modules is **deliberate** — it is what makes a module extractable into its own repository. Keep the copies in sync; do not factor them out into the root.
 

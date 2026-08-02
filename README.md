@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/JoanRoucoux/java-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/JoanRoucoux/java-starter/actions/workflows/ci.yml)
 ![Java](https://img.shields.io/badge/Java-25-orange)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-brightgreen)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-brightgreen)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Spring Boot starter for backends in **hexagonal architecture**, built as **separate modules you pick from**: `-domain` (framework-free model, ports, services), `-adapter` (their implementations) and `-api` (Spring Boot main + REST exposition) always, plus `-schema` (Liquibase changelogs and the PostgreSQL persistence they own) when there is a database, and `-batch` (Spring Batch over the same hexagon) when there are jobs. Built to back a frontend application (see [angular-starter-web](https://github.com/JoanRoucoux/angular-starter-web)) and attach to a database and/or one or more external APIs.
@@ -13,7 +13,7 @@ There is **no parent pom**. The `pom.xml` at the root only aggregates: no module
 
 | Tool                                     | Role                                                         |
 | ---------------------------------------- | ------------------------------------------------------------ |
-| Spring Boot 3.5 / Java 25                | Application framework, Maven modules with wrapper            |
+| Spring Boot 4.1 / Java 25                | Application framework, Maven modules with wrapper            |
 | openapi-generator (contract-first)       | `openapi/openapi.yaml` → generated interfaces + DTOs         |
 | Spring Security (OAuth2 resource server) | Stateless JWT validation                                     |
 | Spring Data JPA + PostgreSQL             | Persistence adapter (`schema` module)                        |

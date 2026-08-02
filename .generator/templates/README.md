@@ -8,7 +8,7 @@ There is no parent pom: the root `pom.xml` only aggregates, and every module is 
 
 | Tool                                     | Role                                                        |
 | ---------------------------------------- | ----------------------------------------------------------- |
-| Spring Boot 3.5 / Java 25                | Application framework, Maven modules with wrapper           |
+| Spring Boot 4.1 / Java 25                | Application framework, Maven modules with wrapper           |
 | openapi-generator (contract-first)       | `{{appName}}-api/openapi/openapi.yaml` → interfaces + DTOs  |
 | Spring Security (OAuth2 resource server) | Stateless JWT validation                                    |
 | RestClient                               | External API client adapter (timeouts via properties)       |
