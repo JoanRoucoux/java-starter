@@ -27,18 +27,18 @@
     <starter-adapter.version>0.1.0-SNAPSHOT</starter-adapter.version>
     <starter-schema.version>0.1.0-SNAPSHOT</starter-schema.version>
 
-    <archunit.version>1.4.1</archunit.version>
-    <wiremock.version>3.13.0</wiremock.version>
+    <archunit.version>1.4.2</archunit.version>
+    <wiremock.version>3.13.2</wiremock.version>
     <testcontainers.version>1.21.4</testcontainers.version>
     <!-- Pinned to a Cucumber release built against the JUnit Platform line spring-boot-dependencies
          manages via its junit-bom import — this project's dependencyManagement always wins the
          resolved version, never Cucumber's own, so a newer Cucumber needing a newer JUnit Platform
          than that BOM provides fails at test discovery with NoClassDefFoundError. Re-check this
          pairing before bumping either Spring Boot or Cucumber. -->
-    <cucumber.version>7.23.0</cucumber.version>
+    <cucumber.version>7.34.6</cucumber.version>
 
-    <openapi-generator-maven-plugin.version>7.12.0</openapi-generator-maven-plugin.version>
-    <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+    <openapi-generator-maven-plugin.version>7.24.0</openapi-generator-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
     <spotless-maven-plugin.version>3.9.0</spotless-maven-plugin.version>
     <palantir-java-format.version>2.96.0</palantir-java-format.version>
   </properties>
