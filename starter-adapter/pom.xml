@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.4</version>
+    <version>4.1.0</version>
     <relativePath />
   </parent>
 
@@ -40,10 +40,24 @@
       <version>${starter-domain.version}</version>
     </dependency>
 
-    <!-- RestClient + Jackson, without spring-boot-starter-web: no embedded server here. -->
+    <!-- RestClient + Jackson, without spring-boot-starter-web: no embedded server here.
+         spring-web is where RestClient itself lives; it is not pulled in transitively. -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-json</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-http-client</artifactId>
+    </dependency>
+    <!-- RestClientAutoConfiguration: provides the RestClient.Builder bean the config below wires. -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-restclient</artifactId>
     </dependency>
     <!-- module:schema -->
     <dependency>
@@ -60,6 +74,16 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-data-jpa-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-jdbc-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

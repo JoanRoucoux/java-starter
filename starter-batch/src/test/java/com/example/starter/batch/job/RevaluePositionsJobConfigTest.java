@@ -14,9 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.batch.core.Step;
 import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.item.Chunk;
+import org.springframework.batch.core.step.Step;
+import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /** The step's glue, without a Spring context: each piece talks to a port or a use case only. */
