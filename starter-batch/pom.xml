@@ -86,6 +86,13 @@
       <artifactId>liquibase-core</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- LiquibaseAutoConfiguration: without it, liquibase-core alone never migrates the database
+         RevaluePositionsJobIT needs to validate against. -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-liquibase</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-testcontainers</artifactId>

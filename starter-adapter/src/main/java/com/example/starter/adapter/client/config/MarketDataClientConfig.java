@@ -3,7 +3,7 @@ package com.example.starter.adapter.client.config;
 import com.example.starter.adapter.client.properties.MarketDataClientProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
-import org.springframework.boot.http.client.ClientHttpRequestFactorySettings;
+import org.springframework.boot.http.client.HttpClientSettings;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
@@ -14,7 +14,7 @@ class MarketDataClientConfig {
 
     @Bean
     RestClient marketDataRestClient(RestClient.Builder builder, MarketDataClientProperties properties) {
-        ClientHttpRequestFactorySettings settings = ClientHttpRequestFactorySettings.defaults()
+        HttpClientSettings settings = HttpClientSettings.defaults()
                 .withConnectTimeout(properties.connectTimeout())
                 .withReadTimeout(properties.readTimeout());
         return builder.baseUrl(properties.baseUrl())

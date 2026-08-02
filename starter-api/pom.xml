@@ -30,10 +30,11 @@
     <archunit.version>1.4.1</archunit.version>
     <wiremock.version>3.13.0</wiremock.version>
     <testcontainers.version>1.21.4</testcontainers.version>
-    <!-- Pinned to the exact Cucumber release built against junit-jupiter 5.12.2 — the version
-         spring-boot-dependencies 3.5.4 manages via its junit-bom import. A newer Cucumber needs a
-         newer JUnit Platform than that BOM provides (NoClassDefFoundError at test discovery,
-         since this project's dependencyManagement always wins the version, never Cucumber's own). -->
+    <!-- Pinned to a Cucumber release built against the JUnit Platform line spring-boot-dependencies
+         manages via its junit-bom import — this project's dependencyManagement always wins the
+         resolved version, never Cucumber's own, so a newer Cucumber needing a newer JUnit Platform
+         than that BOM provides fails at test discovery with NoClassDefFoundError. Re-check this
+         pairing before bumping either Spring Boot or Cucumber. -->
     <cucumber.version>7.23.0</cucumber.version>
 
     <openapi-generator-maven-plugin.version>7.12.0</openapi-generator-maven-plugin.version>
@@ -93,6 +94,16 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-webmvc-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-resttestclient</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-test</artifactId>
       <scope>test</scope>
@@ -149,6 +160,13 @@
     <dependency>
       <groupId>org.liquibase</groupId>
       <artifactId>liquibase-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- LiquibaseAutoConfiguration: without it, liquibase-core alone never migrates the database
+         ApplicationIT needs to validate against. -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-liquibase</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
