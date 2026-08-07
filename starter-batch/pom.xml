@@ -27,7 +27,7 @@
     <starter-adapter.version>0.1.0-SNAPSHOT</starter-adapter.version>
     <starter-schema.version>0.1.0-SNAPSHOT</starter-schema.version>
 
-    <archunit.version>1.4.2</archunit.version>
+    <archunit.version>1.5.0</archunit.version>
     <testcontainers.version>1.21.4</testcontainers.version>
 
     <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
