@@ -35,11 +35,11 @@
          resolved version, never Cucumber's own, so a newer Cucumber needing a newer JUnit Platform
          than that BOM provides fails at test discovery with NoClassDefFoundError. Re-check this
          pairing before bumping either Spring Boot or Cucumber. -->
-    <cucumber.version>7.34.6</cucumber.version>
+    <cucumber.version>7.34.7</cucumber.version>
 
     <openapi-generator-maven-plugin.version>7.24.0</openapi-generator-maven-plugin.version>
     <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
-    <spotless-maven-plugin.version>3.9.0</spotless-maven-plugin.version>
+    <spotless-maven-plugin.version>3.10.0</spotless-maven-plugin.version>
     <palantir-java-format.version>2.96.0</palantir-java-format.version>
   </properties>
 
