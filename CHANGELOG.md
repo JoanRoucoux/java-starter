@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.1.0](https://github.com/JoanRoucoux/java-starter/compare/v1.0.0...v1.1.0) (2026-10-22)
+
+
+### Features
+
+* **adapter:** retry transient failures of GET clients ([766371e](https://github.com/JoanRoucoux/java-starter/commit/766371e20675c3c1525a9ab6e1b639b41cda0224))
+* add the optional kafka module ([a5a3a8b](https://github.com/JoanRoucoux/java-starter/commit/a5a3a8ba47ebbf2ebd937a5e8ad7f3a50ec32465))
+* log one line per use case, ECS in production ([f8a5b8e](https://github.com/JoanRoucoux/java-starter/commit/f8a5b8e3c7ae2b9bdedd5ffb4b6b460b019200e4))
+
+
+### Bug Fixes
+
+* **api:** answer 400 on a malformed parameter and bound decimal input ([180b189](https://github.com/JoanRoucoux/java-starter/commit/180b1895f29b847a2b32f3066cf2949d67c372f6))
+* **batch:** drop the job repository tables nothing reads ([8847b1b](https://github.com/JoanRoucoux/java-starter/commit/8847b1b8d1b5fa0d26c3e82385879674df4b4615))
+* let spring-boot:run find the compose file ([169e999](https://github.com/JoanRoucoux/java-starter/commit/169e9992669742e845a9c496aec349fa7eada67f))
+* review follow-ups on generated docs, Dependabot and the kafka topic ([648a910](https://github.com/JoanRoucoux/java-starter/commit/648a910aef186e475e6fcf71ea6276e6ac0056b2))
+
 ## 1.0.0 (2026-08-02)
 
 
