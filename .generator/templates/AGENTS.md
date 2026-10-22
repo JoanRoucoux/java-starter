@@ -37,6 +37,9 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org).
 - Formatting is Spotless/palantir; records for immutable data; constructor injection without Lombok. A [lefthook](https://lefthook.dev) pre-commit hook runs `spotless:apply` and re-stages the result automatically (`lefthook install` once after cloning).
+- Any number the API reads must fit its column: `BoundedDecimalDeserializer` (`application/json`) refuses a `BigDecimal` the demo `numeric(19,4)` cannot hold with a 400, before any arithmetic runs. Change the bounds in `DecimalBounds` together with the column.
+- A `TechnicalException` message names the dependency, never the upstream response; the full text goes to the log through the cause.
+- A constraint violation on a path or query parameter answers 400 (`ApiExceptionHandler`), not 500.
 - Sibling modules are depended on through an explicit version property (`{{appName}}-domain.version` and friends), never `${project.version}` — that would silently mean the wrong thing once a module is extracted.
 <!-- module:schema -->
 - Schema changes only through `{{appName}}-schema`'s Liquibase changesets (`ddl-auto: validate` will fail otherwise). Changeset ids are sequential and descriptive (`003-add-index`).

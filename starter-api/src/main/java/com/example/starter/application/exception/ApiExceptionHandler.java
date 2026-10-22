@@ -2,6 +2,9 @@ package com.example.starter.application.exception;
 
 import com.example.starter.domain.exception.business.BusinessException;
 import com.example.starter.domain.exception.technical.TechnicalException;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ConstraintViolationException;
+import java.io.IOException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,5 +31,10 @@ class ApiExceptionHandler {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_GATEWAY, exception.getMessage());
         problem.setTitle("Upstream dependency failed");
         return problem;
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    void handleInvalidParameter(HttpServletResponse response) throws IOException {
+        response.sendError(HttpStatus.BAD_REQUEST.value());
     }
 }

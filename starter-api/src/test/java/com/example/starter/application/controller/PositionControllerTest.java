@@ -100,6 +100,15 @@ class PositionControllerTest {
     }
 
     @Test
+    void rejectsADecimalOutsideTheColumnBounds() throws Exception {
+        mockMvc.perform(post("/position")
+                        .with(jwt())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"isin\":\"US0378331005\",\"quantity\":1e999999999}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void returns404ForAnUnknownPosition() throws Exception {
         when(getPosition.byId(any())).thenReturn(Optional.empty());
 
