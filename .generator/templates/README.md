@@ -12,6 +12,7 @@ There is no parent pom: the root `pom.xml` only aggregates, and every module is 
 | openapi-generator (contract-first)       | `{{appName}}-api/openapi/openapi.yaml` → interfaces + DTOs  |
 | Spring Security (OAuth2 resource server) | Stateless JWT validation                                    |
 | RestClient                               | External API client adapter (timeouts via properties)       |
+| Micrometer Tracing + ECS JSON            | One log line per use case, trace ids; `LOGGING_STRUCTURED_FORMAT_CONSOLE=ecs` in production |
 <!-- module:schema -->
 | Spring Data JPA + PostgreSQL             | Persistence adapter                                         |
 | Liquibase (`{{appName}}-schema`)         | Versioned changelogs, applied out-of-band — never by an app |

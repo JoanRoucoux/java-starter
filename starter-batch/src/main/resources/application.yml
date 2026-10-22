@@ -26,3 +26,23 @@ app:
       base-url: http://localhost:8082
       connect-timeout: 2s
       read-timeout: 5s
+
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: false
+  tracing:
+    sampling:
+      probability: 1.0
+    export:
+      otlp:
+        enabled: false
+
+logging:
+  expect-correlation-id: true
+  structured:
+    json:
+      stacktrace:
+        root: first
+        max-length: 8192

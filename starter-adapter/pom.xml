@@ -39,6 +39,10 @@
       <artifactId>starter-domain</artifactId>
       <version>${starter-domain.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-aop</artifactId>
+    </dependency>
 
     <!-- RestClient + Jackson, without spring-boot-starter-web: no embedded server here.
          spring-web is where RestClient itself lives; it is not pulled in transitively. -->
