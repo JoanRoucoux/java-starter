@@ -13,7 +13,7 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  ci:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,14 +29,9 @@ jobs:
       - name: Check formatting
         run: ./mvnw -ntp -B spotless:check
 
-      # Unit tests, ArchUnit rules, integration tests (Testcontainers), coverage check.
       - name: Verify
         run: ./mvnw -ntp -B verify
 
-  # Guards against drift between the starter and its generator manifest/templates
-  # (generator.config.json, .generator/): generates applications from this working tree with
-  # starter-generator and runs their own quality gates. Both ends of the module matrix are
-  # exercised, because the variant without the schema module is a different set of files.
   generate:
     runs-on: ubuntu-latest
     strategy:
@@ -58,10 +53,8 @@ jobs:
           java-version: 25
           cache: maven
 
-      # No package.json here to auto-detect a version from (this repo is pure Maven) — pinned to
-      # match starter-generator's own packageManager, since that's whose dependencies get installed.
       - name: Set up pnpm
-        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
           version: 11.14.0
 
@@ -75,25 +68,20 @@ jobs:
           git clone --depth 1 https://github.com/JoanRoucoux/starter-generator "$RUNNER_TEMP/starter-generator"
           pnpm install --frozen-lockfile --dir "$RUNNER_TEMP/starter-generator"
 
-      # A different base package exercises the package renames and empty-directory pruning;
-      # the multi-word app name (ci-check) exercises the module renames.
       - name: Generate an app from this working tree
         run: >
           node "$RUNNER_TEMP/starter-generator/index.mjs" "$RUNNER_TEMP/generated/ci-check"
           --template . --title "CI Check" --base-package com.acme.cicheck
           --modules "${{ matrix.modules }}" --skip-install --skip-git --yes
 
-      # No placeholder identity and no leftover generator marker may survive a generation.
       - name: Check for leftovers
         working-directory: ${{ runner.temp }}/generated/ci-check
         run: |
-          # The [^a-z-] guard keeps Spring's own spring-boot-starter-* artifacts out of the match.
           if grep -rnE --exclude-dir=target 'com\.example\.starter|(^|[^a-z-])starter-(domain|adapter|api|schema|batch|aggregator)|module:(schema|batch)' .; then
             echo '::error::placeholder identity or generator marker left in the generated app'
             exit 1
           fi
 
-      # Mirrors the generator's postInstall step (skipped above with --skip-install).
       - name: Format the generated app
         working-directory: ${{ runner.temp }}/generated/ci-check
         run: |
@@ -105,3 +93,47 @@ jobs:
         run: |
           ./mvnw -ntp -B spotless:check
           ./mvnw -ntp -B verify
+
+  docker:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        module: [api, batch, schema]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Build the ${{ matrix.module }} image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: starter-${{ matrix.module }}/Dockerfile
+          push: false
+          cache-from: type=gha,scope=${{ matrix.module }}
+
+  actionlint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Lint the workflows
+        run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12
+
+  ci:
+    if: always()
+    needs: [verify, generate, docker, actionlint]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every job to pass
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "$RESULTS"
+          for result in $RESULTS; do
+            case "$result" in success|skipped) ;; *) exit 1 ;; esac
+          done

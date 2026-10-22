@@ -47,7 +47,8 @@
         "default": false,
         "requires": ["schema"],
         "markers": [
-          { "extensions": [".xml", ".md"], "start": "<!-- module:batch -->", "end": "<!-- /module:batch -->" }
+          { "extensions": [".xml", ".md"], "start": "<!-- module:batch -->", "end": "<!-- /module:batch -->" },
+          { "extensions": [".yml", ".yaml"], "start": "# module:batch", "end": "# /module:batch" }
         ],
         "whenAbsent": {
           "remove": [
@@ -139,7 +140,7 @@
     {
       "file": "{{appName}}-api/openapi/openapi.yaml",
       "search": "java-starter API",
-      "value": "{{title}} API",
+      "value": "{{titleJson}} API",
       "optional": true
     }
   ],
@@ -161,6 +162,7 @@
     { "extensions": [".xml"], "search": "starter-schema.version", "value": "{{appName}}-schema.version" },
     { "extensions": [".yml"], "search": "starter-api", "value": "{{appName}}-api" },
     { "module": "batch", "extensions": [".yml"], "search": "starter-batch", "value": "{{appName}}-batch" },
+    { "module": "schema", "extensions": [".yml"], "search": "starter-schema", "value": "{{appName}}-schema" },
     { "module": "schema", "extensions": [".yaml"], "search": "starter-schema", "value": "{{appName}}-schema" }
   ],
   "openapiTarget": "{{appName}}-api/openapi/openapi.yaml",

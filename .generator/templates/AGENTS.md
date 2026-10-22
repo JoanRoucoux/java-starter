@@ -79,4 +79,9 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 - **`cucumber-junit-platform-engine` must stay pinned to a version built against the same `junit-jupiter` line Spring Boot manages** (see `{{appName}}-api/pom.xml`'s `cucumber.version` comment): a newer Cucumber needs a newer JUnit Platform than this project's dependency management provides, and fails at test discovery with `NoClassDefFoundError`.
 - **`CucumberIT` always reports "Tests run: 0"** in the Surefire/Failsafe console summary — cosmetic, not a sign the suite didn't run. `cucumber.plugin=pretty,summary` (`junit-platform.properties`) prints the real scenario/step counts right above it.
 - `mvnw` must stay executable on Linux CI (`git update-index --chmod=+x mvnw` if git loses the mode on Windows).
+- **The required check is the `ci` job, a gate over every other job**: it runs `if: always()` and fails unless each `needs` result is `success` or `skipped`. Never use `!cancelled()`, and a skipped required check passes silently. A new job goes into the gate's `needs`.
+<!-- module:schema -->
+- **Dependabot ignores a PostgreSQL major in `docker-compose`**: a major cannot read the previous data directory, so that upgrade is a dump and restore.
+<!-- /module:schema -->
+- Dependabot ignores majors of `eclipse-temurin` and `maven` in the Dockerfiles: the build and runtime JDK move together by hand.
 - GitHub Actions in `.github/workflows/` are pinned by commit SHA — when adding one, pin it the same way.
