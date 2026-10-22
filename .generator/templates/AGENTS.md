@@ -26,6 +26,7 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 - `{{appName}}-api` — Spring Boot main, `application/` (`controller/` = controllers implementing the **generated** interfaces, `mapper/` = domain↔DTO mapping — **one class per resource, never a shared mapper**, `exception/` = the `@RestControllerAdvice`), `infrastructure/config/` (security, and **one `XxxDomainConfig` per slice**). Depends on `{{appName}}-adapter` at **runtime scope only** — adapters are wired into the context but invisible at compile time. The advice maps `BusinessException` → 422 and `TechnicalException` → 502; 401/403 are left to Spring Security. The OpenAPI contract lives in this module, not at the repository root.
 <!-- module:schema -->
 - `{{appName}}-schema` — Liquibase changelogs only, no Java code. Owns the schema and is applied out-of-band, by ops or a pipeline (`./mvnw liquibase:update -pl {{appName}}-schema`) — **no running application ever migrates the database**. The application modules depend on it at **test scope only** (never widen, never add it to `{{appName}}-adapter`), purely so their integration tests can migrate their own throwaway Testcontainers database against the real changelog before `ddl-auto: validate` checks it.
+- **The migration password never goes on a command line**: `{{appName}}-schema`'s `liquibase.url`, `liquibase.username` and `liquibase.password` are Maven properties defaulting to the local compose database, and exporting `LIQUIBASE_PASSWORD` activates the `password-from-environment` profile. A `-Dliquibase.password=` shows in `ps` and in image history.
 <!-- /module:schema -->
 <!-- module:batch -->
 - `{{appName}}-batch` — second Spring Boot application over the same `{{appName}}-domain`/`{{appName}}-adapter`: `BatchApplication` (in the base package, so the component scan reaches the adapters), `batch/job/` (the chunk-oriented step, wired to ports only) and `batch/config/` (its composition root). Depends on `{{appName}}-adapter` at **runtime scope**, exactly like `{{appName}}-api`. Its job repository is in memory (`spring-boot-starter-batch` has no JDBC one), so a run leaves no job metadata in the database. Each run is its own JVM with an empty repository: nothing refuses a rerun with identical parameters.
@@ -42,7 +43,7 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 - A constraint violation on a path or query parameter answers 400 (`ApiExceptionHandler`), not 500.
 - Sibling modules are depended on through an explicit version property (`{{appName}}-domain.version` and friends), never `${project.version}` — that would silently mean the wrong thing once a module is extracted.
 <!-- module:schema -->
-- Schema changes only through `{{appName}}-schema`'s Liquibase changesets (`ddl-auto: validate` will fail otherwise). Changeset ids are sequential and descriptive (`003-add-index`).
+- Schema changes only through `{{appName}}-schema`'s Liquibase changesets (`ddl-auto: validate` will fail otherwise). New changesets are Liquibase formatted SQL files (`--liquibase formatted sql`, then `--changeset {{appName}}:003-add-index`): ids are sequential and descriptive, the author is the application name. `changelog-master.xml` stays XML (`includeAll`).
 <!-- /module:schema -->
 
 ## Testing
