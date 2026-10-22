@@ -82,6 +82,7 @@
     "CHANGELOG.md",
     "version.txt",
     "LICENSE",
+    ".github/assets",
     ".github/CODE_OF_CONDUCT.md",
     ".github/CONTRIBUTING.md",
     ".github/SECURITY.md",
