@@ -7,7 +7,7 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-brightgreen)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Spring Boot starter for backends in **hexagonal architecture**, built as **separate modules you pick from**: `-domain` (framework-free model, ports, services), `-adapter` (their implementations) and `-api` (Spring Boot main + REST exposition) always, plus `-schema` (Liquibase changelogs and the PostgreSQL persistence they own) when there is a database, and `-batch` (Spring Batch over the same hexagon) when there are jobs. Built to back a frontend application (see [angular-starter-web](https://github.com/JoanRoucoux/angular-starter-web)) and attach to a database and/or one or more external APIs.
+Spring Boot starter for backends in **hexagonal architecture**, built as **separate modules you pick from**: `-domain` (framework-free model, ports, services), `-adapter` (their implementations) and `-api` (Spring Boot main + REST exposition) always, plus `-schema` (Liquibase changelogs and the PostgreSQL persistence they own) when there is a database, `-batch` (Spring Batch over the same hexagon) when there are jobs, and `-kafka` (a worker consuming the events the API publishes) when other systems react to what it writes. Built to back a frontend application (see [angular-starter-web](https://github.com/JoanRoucoux/angular-starter-web)) and attach to a database and/or one or more external APIs.
 
 There is **no parent pom**. The `pom.xml` at the root only aggregates: no module inherits from it, each one is parented by `spring-boot-starter-parent` and carries its own dependencies and quality gates. A module can therefore be dropped — or moved to its own repository — without touching anything else.
 
@@ -21,6 +21,7 @@ There is **no parent pom**. The `pom.xml` at the root only aggregates: no module
 | Spring Data JPA + PostgreSQL             | Persistence adapter (`schema` module)                        |
 | Liquibase (`-schema` module)             | Versioned changelogs, applied out-of-band — never by an app  |
 | Spring Batch (`-batch` module)           | Chunk-oriented jobs over the same domain as the API          |
+| Spring Kafka (`-kafka` module)           | `position.opened` event published by the API, consumed by a worker |
 | RestClient                               | External API client adapter (timeouts via properties)        |
 | Micrometer Tracing + ECS JSON            | One log line per use case, trace ids; `LOGGING_STRUCTURED_FORMAT_CONSOLE=ecs` in production |
 | Testcontainers, WireMock, ArchUnit       | Integration tests, client tests, architecture enforcement    |
@@ -33,10 +34,10 @@ New applications are scaffolded with [starter-generator](https://github.com/Joan
 
 ```bash
 starter-generator portfolio --starter java --base-package com.acme.portfolio \
-  --modules schema,batch --openapi ../specs/portfolio.yaml
+  --modules schema,batch,kafka --openapi ../specs/portfolio.yaml
 ```
 
-`--modules ""` generates an API with no database at all: the persistence adapter, the JPA dependencies and the position demo go away, and what remains is a service orchestrating external APIs. `--modules schema` is the default. `batch` requires `schema` (the demo job reads and writes positions).
+`--modules ""` generates an API with no database at all: the persistence adapter, the JPA dependencies and the position demo go away, and what remains is a service orchestrating external APIs. `--modules schema` is the default. `batch` and `kafka` require `schema` (the demo job and the worker read positions).
 
 Module directories, Maven artifactIds and the Java base package take your application's identity at generation time. The demo features are **kept** as reference implementations — replace them with your own. If you provide `--openapi`, align the controllers with the regenerated interfaces afterwards (the compile errors point the way).
 
@@ -49,6 +50,7 @@ Prerequisites: **JDK 25** and **Docker** (PostgreSQL via Testcontainers and Dock
 docker compose up -d --wait                  # starts PostgreSQL and applies the schema (compose.yaml) — no app ever migrates it itself
 ./mvnw spring-boot:run -pl starter-api       # starts the same stack when it is down, then the API on :8080
 ./mvnw spring-boot:run -pl starter-batch     # runs the demo job, then exits
+./mvnw spring-boot:run -pl starter-kafka     # starts the broker (compose profile kafka) and the worker
 ```
 
 The `schema` service of the compose file migrates PostgreSQL from the repository; after adding a changeset, `docker compose up -d --build schema` or `./mvnw liquibase:update -pl starter-schema` applies it. Starting or restarting an application never touches the schema. Each runnable module has its own image, built from the repository root: `docker build -f starter-api/Dockerfile .` (likewise `starter-batch`, `starter-schema`). Without an identity provider, activate the `local` profile to disable authentication: `./mvnw spring-boot:run -pl starter-api -Dspring-boot.run.profiles=local`.
@@ -72,6 +74,7 @@ starter-api/             Spring Boot application: REST exposition
 └── generated/           openapi build output (never edited, never committed)
 starter-schema/          Liquibase changelogs (db/changelog/) — owns the schema, no Java code
 starter-batch/           Spring Boot application: Spring Batch jobs over starter-domain/starter-adapter
+starter-kafka/           Spring Boot worker: consumes the position.opened events the API publishes
 ```
 
 Dependency rules:

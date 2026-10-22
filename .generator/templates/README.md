@@ -12,6 +12,9 @@ There is no parent pom: the root `pom.xml` only aggregates, and every module is 
 | openapi-generator (contract-first)       | `{{appName}}-api/openapi/openapi.yaml` → interfaces + DTOs  |
 | Spring Security (OAuth2 resource server) | Stateless JWT validation                                    |
 | RestClient                               | External API client adapter (timeouts via properties)       |
+<!-- module:kafka -->
+| Spring Kafka (`{{appName}}-kafka`)       | `position.opened` event published by the API, consumed by a worker |
+<!-- /module:kafka -->
 | Micrometer Tracing + ECS JSON            | One log line per use case, trace ids; `LOGGING_STRUCTURED_FORMAT_CONSOLE=ecs` in production |
 <!-- module:schema -->
 | Spring Data JPA + PostgreSQL             | Persistence adapter                                         |
@@ -50,6 +53,14 @@ The demo job runs on demand and exits when it is done:
 ```
 
 <!-- /module:batch -->
+<!-- module:kafka -->
+The worker starts the broker (compose profile `kafka`) and consumes what the API publishes after each created position:
+
+```bash
+./mvnw spring-boot:run -pl {{appName}}-kafka
+```
+
+<!-- /module:kafka -->
 Without an identity provider, activate the `local` profile to disable authentication: `./mvnw spring-boot:run -pl {{appName}}-api -Dspring-boot.run.profiles=local`.
 
 ## Project structure
@@ -74,6 +85,9 @@ pom.xml                    Aggregator only: <modules>, no inheritance
 <!-- module:batch -->
 {{appName}}-batch/         Spring Boot application: Spring Batch jobs over {{appName}}-domain/{{appName}}-adapter
 <!-- /module:batch -->
+<!-- module:kafka -->
+{{appName}}-kafka/         Spring Boot worker: consumes the position.opened events the API publishes
+<!-- /module:kafka -->
 ```
 
 Dependency rules: `{{appName}}-domain` depends on nothing but the JDK (a Maven guarantee); `{{appName}}-adapter` implements the domain's outbound ports and reaches the domain only through its ports, model and exceptions (ArchUnit); `{{appName}}-api`/`{{appName}}-batch` depend on `{{appName}}-adapter` at **runtime scope only**, so neither can reach adapter internals even by accident. Errors map by family in the `@RestControllerAdvice` — `BusinessException` → 422, `TechnicalException` → 502; authentication and authorization (401/403) are handled by Spring Security.

@@ -24,6 +24,9 @@ updates:
       # module:batch
       - /starter-batch
       # /module:batch
+      # module:kafka
+      - /starter-kafka
+      # /module:kafka
       # module:schema
       - /starter-schema
       # /module:schema

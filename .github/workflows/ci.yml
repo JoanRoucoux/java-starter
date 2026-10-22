@@ -39,7 +39,7 @@ jobs:
       matrix:
         include:
           - variant: full
-            modules: schema,batch
+            modules: schema,batch,kafka
           - variant: minimal
             modules: ''
     steps:
@@ -77,7 +77,7 @@ jobs:
       - name: Check for leftovers
         working-directory: ${{ runner.temp }}/generated/ci-check
         run: |
-          if grep -rnE --exclude-dir=target 'com\.example\.starter|(^|[^a-z-])starter-(domain|adapter|api|schema|batch|aggregator)|module:(schema|batch)' .; then
+          if grep -rnE --exclude-dir=target 'com\.example\.starter|(^|[^a-z-])starter-(domain|adapter|api|schema|batch|kafka|aggregator)|module:(schema|batch|kafka)' .; then
             echo '::error::placeholder identity or generator marker left in the generated app'
             exit 1
           fi
@@ -99,7 +99,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        module: [api, batch, schema]
+        module: [api, batch, kafka, schema]
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
