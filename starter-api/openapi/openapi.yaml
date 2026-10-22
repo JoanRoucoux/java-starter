@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: java-starter API
+  title: "java-starter API"
   description: Contract-first API of the demo features. Edit this file, rebuild, implement.
   version: 0.1.0
 tags:
