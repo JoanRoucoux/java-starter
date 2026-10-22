@@ -13,16 +13,6 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-/**
- * Shared Spring context for every scenario in this glue package (cucumber-spring wires it once
- * per run). Boots the full application against a real PostgreSQL, migrated with the schema
- * module's real changelog — same setup as {@link com.example.starter.ApplicationIT}, since
- * booting the context needs a schema to validate against regardless of which scenario runs.
- * Security is opened up (no IdP involved): these scenarios test business behavior, not
- * authentication, which is already covered by the unit tests and ApplicationIT.
- *
- * <p>Cucumber requires glue classes to be public, unlike the rest of this test suite.
- */
 @CucumberContextConfiguration
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestRestTemplate
@@ -33,12 +23,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
         })
 @Testcontainers
 public class CucumberSpringConfiguration {
-
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17");
 
-    /** Stands in for the market data provider; step definitions stub it per scenario. */
     static final WireMockServer MARKET_DATA =
             new WireMockServer(WireMockConfiguration.options().dynamicPort());
 

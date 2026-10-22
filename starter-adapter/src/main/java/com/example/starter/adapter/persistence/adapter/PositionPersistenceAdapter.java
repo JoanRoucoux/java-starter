@@ -9,10 +9,8 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 
-/** Outbound adapter: implements the domain's read and write ports with Spring Data JPA. */
 @Component
 class PositionPersistenceAdapter implements LoadPositionPort, SavePositionPort {
-
     private final PositionJpaRepository jpaRepository;
 
     PositionPersistenceAdapter(PositionJpaRepository jpaRepository) {

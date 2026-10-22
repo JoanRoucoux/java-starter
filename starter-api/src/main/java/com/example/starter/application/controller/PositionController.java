@@ -12,10 +12,8 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Inbound adapter: implements the generated contract and delegates to the domain's use cases. */
 @RestController
 class PositionController implements PositionApi {
-
     private final CreatePositionUseCase createPosition;
     private final GetPositionUseCase getPosition;
     private final PositionRestMapper mapper;

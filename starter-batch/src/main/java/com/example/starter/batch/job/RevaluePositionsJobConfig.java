@@ -18,14 +18,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-/**
- * Reads the open positions through an outbound port, revalues each one through the domain's
- * inbound port, writes them back through another outbound port. The job knows the ports only —
- * never an adapter, never a domain service implementation.
- */
 @Configuration(proxyBeanMethods = false)
 class RevaluePositionsJobConfig {
-
     private static final int CHUNK_SIZE = 50;
 
     @Bean

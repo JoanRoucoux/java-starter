@@ -15,18 +15,12 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-/**
- * Covers the bulk read the batch module relies on. Kept apart from
- * {@link PositionPersistenceAdapterIT} so that an application generated without the batch drops
- * this file along with the adapter it exercises.
- */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestPropertySource(properties = "spring.jpa.hibernate.ddl-auto=create-drop")
 @Import({OpenPositionsPersistenceAdapter.class, PositionPersistenceAdapter.class})
 @Testcontainers
 class OpenPositionsPersistenceAdapterIT {
-
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17");

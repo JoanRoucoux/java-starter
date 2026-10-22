@@ -1,4 +1,3 @@
-# Local development: no IdP required. Activate with --spring.profiles.active=local
 app:
   security:
     permit-all: true

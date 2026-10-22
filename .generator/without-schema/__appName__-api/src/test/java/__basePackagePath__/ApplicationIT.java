@@ -10,15 +10,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-/**
- * Boots the full application: no database is involved (this application was generated without the
- * schema module), so this only checks that the context starts and that security answers 401
- * without ever contacting an identity provider.
- */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestRestTemplate
 class ApplicationIT {
-
     @Autowired
     private TestRestTemplate restTemplate;
 

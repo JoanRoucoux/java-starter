@@ -16,19 +16,12 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-/**
- * Runs against a real PostgreSQL (Testcontainers). This module has no dependency on the schema
- * module (only the api module's ApplicationIT does, to validate against the real Liquibase
- * changelog) — this slice generates its own throwaway schema from the JPA mapping instead, kept
- * fast and self-contained.
- */
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @TestPropertySource(properties = "spring.jpa.hibernate.ddl-auto=create-drop")
 @Import(PositionPersistenceAdapter.class)
 @Testcontainers
 class PositionPersistenceAdapterIT {
-
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:17");

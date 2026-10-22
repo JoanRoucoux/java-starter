@@ -16,9 +16,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClient;
 
-/** No Spring context: the adapter is built directly against a WireMock server. */
 class MarketDataAdapterTest {
-
     private static final WireMockServer server =
             new WireMockServer(WireMockConfiguration.options().dynamicPort());
 
