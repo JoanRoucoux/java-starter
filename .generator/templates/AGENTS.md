@@ -82,6 +82,8 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 - **The required check is the `ci` job, a gate over every other job**: it runs `if: always()` and fails unless each `needs` result is `success` or `skipped`. Never use `!cancelled()`, and a skipped required check passes silently. A new job goes into the gate's `needs`.
 <!-- module:schema -->
 - **Dependabot ignores a PostgreSQL major in `docker-compose`**: a major cannot read the previous data directory, so that upgrade is a dump and restore.
+- **An entity with an assigned id and no `@Version` makes `save()` run a SELECT before every write**: harmless for the demo, but on a hot path use `Persistable` with `isNew()` or a native upsert.
 <!-- /module:schema -->
 - Dependabot ignores majors of `eclipse-temurin` and `maven` in the Dockerfiles: the build and runtime JDK move together by hand.
+- **`TransientFailureRetryInterceptor` is for idempotent calls only**: `MarketDataClientConfig` wires it onto the injected `RestClient.Builder` (never a static `RestClient.builder()`, which loses Boot's observation customizer). It retries an `IOException`, a 5xx and a 429 whose `Retry-After` is at most 5 s, after 1 s then 3 s, and never a timeout. A client that POSTs must not get it: a retried send that had gone through would run twice.
 - GitHub Actions in `.github/workflows/` are pinned by commit SHA — when adding one, pin it the same way.

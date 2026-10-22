@@ -18,6 +18,7 @@ class MarketDataClientConfig {
                 .withConnectTimeout(properties.connectTimeout())
                 .withReadTimeout(properties.readTimeout());
         return builder.baseUrl(properties.baseUrl())
+                .requestInterceptor(new TransientFailureRetryInterceptor())
                 .requestFactory(ClientHttpRequestFactoryBuilder.detect().build(settings))
                 .build();
     }
