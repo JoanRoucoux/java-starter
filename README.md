@@ -53,13 +53,13 @@ docker compose up -d --wait                  # starts PostgreSQL and applies the
 ./mvnw spring-boot:run -pl starter-kafka     # starts the broker (compose profile kafka) and the worker
 ```
 
-The `schema` service of the compose file migrates PostgreSQL from the repository; after adding a changeset, `docker compose up -d --build schema` or `./mvnw liquibase:update -pl starter-schema` applies it. Starting or restarting an application never touches the schema. Each runnable module has its own image, built from the repository root: `docker build -f starter-api/Dockerfile .` (likewise `starter-batch`, `starter-schema`). Without an identity provider, activate the `local` profile to disable authentication: `./mvnw spring-boot:run -pl starter-api -Dspring-boot.run.profiles=local`.
+The `schema` service of the compose file migrates PostgreSQL from the repository; after adding a changeset, `docker compose up -d --build schema` or `./mvnw liquibase:update -pl starter-schema` applies it. Starting or restarting an application never touches the schema. Each runnable module has its own image, built from the repository root: `docker build -f starter-api/Dockerfile .` (likewise `starter-batch`, `starter-kafka`, `starter-schema`). Without an identity provider, activate the `local` profile to disable authentication: `./mvnw spring-boot:run -pl starter-api -Dspring-boot.run.profiles=local`.
 
 ## Project structure
 
 ```
 pom.xml                  Aggregator only: <modules>, no inheritance
-compose.yaml             Local PostgreSQL
+compose.yaml             Local PostgreSQL, schema migration, Kafka broker (profile kafka)
 starter-domain/          model/, exception/ (business/ holds BusinessException + its subclasses,
                          technical/ holds TechnicalException + its), port/in/ (use cases),
                          port/out/ (repositories, external providers), service/ (plain Java,
@@ -81,9 +81,9 @@ Dependency rules:
 
 - `starter-domain` depends on nothing but the JDK; no Spring, no JPA. Enforced by Maven itself: there is nothing on its classpath to depend on.
 - `starter-adapter` implements the domain's outbound ports and reaches the domain only through its ports, model and exceptions; never the domain services (ArchUnit). `persistence` and `client` never see each other (ArchUnit).
-- `starter-api` and `starter-batch` depend on `starter-adapter` at **runtime scope only**: adapters are wired into the context but invisible at compile time, so neither the REST side nor the batch side can reach adapter internals, even by accident.
+- `starter-api`, `starter-batch` and `starter-kafka` depend on `starter-adapter` at **runtime scope only**: adapters are wired into the context but invisible at compile time, so none of the applications can reach adapter internals, even by accident.
 - Errors map by family in the `@RestControllerAdvice`: `BusinessException` -> 422, `TechnicalException` -> 502 (authentication and authorization, 401/403, are handled by Spring Security's filter chain).
-- `starter-schema` is applied out-of-band (ops or pipeline, `liquibase:update`); a running application **never** migrates the database. `starter-api` and `starter-batch` depend on it at **test scope only**, so their integration tests can migrate their own throwaway Testcontainers database with the real changelog.
+- `starter-schema` is applied out-of-band (ops or pipeline, `liquibase:update`); a running application **never** migrates the database. `starter-api`, `starter-batch` and `starter-kafka` depend on it at **test scope only**, so their integration tests can migrate their own throwaway Testcontainers database with the real changelog.
 
 ## The demo features
 
@@ -110,7 +110,7 @@ The same spec can drive the frontend's generated client (Orval in angular-starte
 
 ## Quality and conventions
 
-- Everything in the repo is written in **English** (code, comments, docs, commit messages).
+- Everything in the repo is written in **English** (code, docs, commit messages).
 - Formatting: Spotless with palantir-java-format: `./mvnw spotless:apply` / `spotless:check`. A [lefthook](https://lefthook.dev) pre-commit hook runs `spotless:apply` and re-stages the result automatically (`lefthook install` once after cloning).
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org): CI and release-please rely on them.
 - `spring.jpa.hibernate.ddl-auto: validate`: the schema only changes through `starter-schema`'s Liquibase changelogs, applied out-of-band (never by an application).

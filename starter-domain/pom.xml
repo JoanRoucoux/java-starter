@@ -14,7 +14,7 @@
   <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>starter-domain</name>
-  <description>Business domain: model, ports and use case implementations — framework-free</description>
+  <description>Business domain: model, ports and use case implementations, framework-free</description>
 
   <properties>
     <java.version>25</java.version>

@@ -40,8 +40,8 @@ updates:
       - dependency-name: eclipse-temurin
         update-types: ['version-update:semver-major']
       - dependency-name: maven
-        update-types: ['version-update:semver-major']
 
+  # module:schema
   - package-ecosystem: docker-compose
     directory: /
     schedule:
@@ -53,3 +53,4 @@ updates:
       images:
         patterns:
           - '*'
+  # /module:schema

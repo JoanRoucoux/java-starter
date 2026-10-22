@@ -14,7 +14,7 @@
   <version>0.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>starter-schema</name>
-  <description>Liquibase changelogs — schema ownership lives here, applied out-of-band (ops/pipeline), never by a running application. Depended on at test scope only, by the integration tests of the application modules.</description>
+  <description>Liquibase changelogs: schema ownership lives here, applied out-of-band (ops/pipeline), never by a running application. Depended on at test scope only, by the integration tests of the application modules.</description>
 
   <properties>
     <java.version>25</java.version>

@@ -114,6 +114,7 @@ jobs:
           file: starter-${{ matrix.module }}/Dockerfile
           push: false
           cache-from: type=gha,scope=${{ matrix.module }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.module }}
 
   actionlint:
     runs-on: ubuntu-latest
