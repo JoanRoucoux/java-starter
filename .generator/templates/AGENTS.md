@@ -33,6 +33,9 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 <!-- module:batch -->
 - `{{appName}}-batch` — second Spring Boot application over the same `{{appName}}-domain`/`{{appName}}-adapter`: `BatchApplication` (in the base package, so the component scan reaches the adapters), `batch/job/` (the chunk-oriented step, wired to ports only) and `batch/config/` (its composition root). Depends on `{{appName}}-adapter` at **runtime scope**, exactly like `{{appName}}-api`. Its job repository is in memory (`spring-boot-starter-batch` has no JDBC one), so a run leaves no job metadata in the database. Each run is its own JVM with an empty repository: nothing refuses a rerun with identical parameters.
 <!-- /module:batch -->
+<!-- module:kafka -->
+- `{{appName}}-kafka` — third Spring Boot application, a long-running worker: `KafkaWorkerApplication` (base package), `kafka/config/` (the `positions` topic, the retrying listener error handler, the composition root over the position ports) and `kafka/consumer/` (`PositionOpenedConsumer`, which looks the position up and logs it). Depends on `{{appName}}-adapter` at **runtime scope**, so `WorkerArchitectureTest` forbids `..kafka..` from reaching `..adapter..`. The API publishes `position.opened` through `PositionAnnouncementService`, a decorator of `CreatePositionUseCase` declared `@Primary` by `PositionEventsConfig`: database first, then event.
+<!-- /module:kafka -->
 - `{{basePackage}}.generated.*` is build output of openapi-generator: never edit it, edit the spec and rebuild. Contract-first: the spec changes before the code.
 - The hexagonal rules are law, enforced by the ArchUnit tests in the application modules. The demo features are reference implementations of a full slice — model new features on them.
 
@@ -87,6 +90,11 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 - **`spring-boot-{{appName}}-batch` in Spring Boot 4 has no JDBC job repository**: `spring.batch.jdbc.initialize-schema` is an unknown property there and the repository is in memory. `spring-boot-{{appName}}-batch-jdbc` provides the JDBC one, and its schema would have to be the Spring Batch 6 one, not the 5.2.2 tables.
 - `{{appName}}-batch`'s `hibernate.jdbc.batch_size` equals the step's `CHUNK_SIZE` (50) so a chunk is written in one JDBC batch: keep them in step.
 <!-- /module:batch -->
+<!-- module:kafka -->
+- **Publication is a domain decorator, never an edit of `PositionService`**: `PositionAnnouncementService` delegates to the real service first and publishes second, so a failed save announces nothing. `KafkaEventPublisher` never throws: a synchronous failure is logged with its stack, an asynchronous one is left to the Spring Kafka producer listener. The consumer logs the position id and ISIN only, never an amount.
+- **The topic is created by the worker on start** (`TopicsConfig`): an event published before the worker ever ran is dropped and logged. The API does not start the broker (its compose profile is not active). `start.skip: never` makes every application run `docker compose up` even when PostgreSQL is already running, and the worker activates the `kafka` profile.
+- **Kafka test traps**: close a producer factory built against an unreachable broker, or its thread retries forever and Surefire kills the fork after 30 s. Every test creates a fresh consumer group that re-reads the topic from the start, so match on the record value. The Testcontainers broker image (`apache/kafka:4.3.1`) is pinned to the compose tag.
+<!-- /module:kafka -->
 - **`cucumber-junit-platform-engine` must stay pinned to a version built against the same `junit-jupiter` line Spring Boot manages** (see `{{appName}}-api/pom.xml`'s `cucumber.version` comment): a newer Cucumber needs a newer JUnit Platform than this project's dependency management provides, and fails at test discovery with `NoClassDefFoundError`.
 - **`CucumberIT` always reports "Tests run: 0"** in the Surefire/Failsafe console summary — cosmetic, not a sign the suite didn't run. `cucumber.plugin=pretty,summary` (`junit-platform.properties`) prints the real scenario/step counts right above it.
 - `mvnw` must stay executable on Linux CI (`git update-index --chmod=+x mvnw` if git loses the mode on Windows).

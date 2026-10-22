@@ -74,6 +74,16 @@
       <scope>runtime</scope>
     </dependency>
     <!-- /module:schema -->
+    <!-- module:kafka -->
+    <dependency>
+      <groupId>org.springframework.kafka</groupId>
+      <artifactId>spring-kafka</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-kafka</artifactId>
+    </dependency>
+    <!-- /module:kafka -->
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -113,6 +123,13 @@
       <scope>test</scope>
     </dependency>
     <!-- /module:schema -->
+    <!-- module:kafka -->
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>kafka</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!-- /module:kafka -->
   </dependencies>
 
   <!-- The quality block below is intentionally identical in every module: without a shared

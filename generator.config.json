@@ -63,6 +63,30 @@
             "starter-adapter/src/test/java/com/example/starter/adapter/persistence/adapter/OpenPositionsPersistenceAdapterIT.java"
           ]
         }
+      },
+      {
+        "id": "kafka",
+        "label": "kafka",
+        "hint": "Kafka worker consuming the events the API publishes after each write (requires schema)",
+        "default": false,
+        "requires": ["schema"],
+        "markers": [
+          { "extensions": [".xml", ".md"], "start": "<!-- module:kafka -->", "end": "<!-- /module:kafka -->" },
+          { "extensions": [".yml", ".yaml"], "start": "# module:kafka", "end": "# /module:kafka" }
+        ],
+        "whenAbsent": {
+          "remove": [
+            "starter-kafka",
+            "starter-domain/src/main/java/com/example/starter/domain/model/event",
+            "starter-domain/src/main/java/com/example/starter/domain/port/out/PublishEventPort.java",
+            "starter-domain/src/main/java/com/example/starter/domain/service/PositionAnnouncementService.java",
+            "starter-domain/src/test/java/com/example/starter/domain/service/PositionAnnouncementServiceTest.java",
+            "starter-adapter/src/main/java/com/example/starter/adapter/messaging",
+            "starter-adapter/src/test/java/com/example/starter/adapter/messaging",
+            "starter-api/src/main/java/com/example/starter/infrastructure/config/PositionEventsConfig.java",
+            "starter-api/src/test/java/com/example/starter/infrastructure/config/PositionEventsConfigTest.java"
+          ]
+        }
       }
     ]
   },
@@ -76,6 +100,7 @@
     "starter-api/target",
     "starter-schema/target",
     "starter-batch/target",
+    "starter-kafka/target",
     ".claude/settings.local.json"
   ],
   "remove": [
@@ -96,6 +121,7 @@
     { "from": "starter-api", "to": "{{appName}}-api" },
     { "module": "schema", "from": "starter-schema", "to": "{{appName}}-schema" },
     { "module": "batch", "from": "starter-batch", "to": "{{appName}}-batch" },
+    { "module": "kafka", "from": "starter-kafka", "to": "{{appName}}-kafka" },
     {
       "from": "{{appName}}-domain/src/main/java/com/example/starter",
       "to": "{{appName}}-domain/src/main/java/{{basePackagePath}}"
@@ -129,6 +155,16 @@
       "module": "batch",
       "from": "{{appName}}-batch/src/test/java/com/example/starter",
       "to": "{{appName}}-batch/src/test/java/{{basePackagePath}}"
+    },
+    {
+      "module": "kafka",
+      "from": "{{appName}}-kafka/src/main/java/com/example/starter",
+      "to": "{{appName}}-kafka/src/main/java/{{basePackagePath}}"
+    },
+    {
+      "module": "kafka",
+      "from": "{{appName}}-kafka/src/test/java/com/example/starter",
+      "to": "{{appName}}-kafka/src/test/java/{{basePackagePath}}"
     }
   ],
   "replace": [
@@ -158,11 +194,13 @@
     { "module": "schema", "extensions": [".sql"], "search": "--changeset starter:", "value": "--changeset {{appName}}:" },
     { "extensions": [".xml"], "search": ">starter-schema<", "value": ">{{appName}}-schema<" },
     { "extensions": [".xml"], "search": ">starter-batch<", "value": ">{{appName}}-batch<" },
+    { "extensions": [".xml"], "search": ">starter-kafka<", "value": ">{{appName}}-kafka<" },
     { "extensions": [".xml"], "search": "starter-domain.version", "value": "{{appName}}-domain.version" },
     { "extensions": [".xml"], "search": "starter-adapter.version", "value": "{{appName}}-adapter.version" },
     { "extensions": [".xml"], "search": "starter-schema.version", "value": "{{appName}}-schema.version" },
     { "extensions": [".yml"], "search": "starter-api", "value": "{{appName}}-api" },
     { "module": "batch", "extensions": [".yml"], "search": "starter-batch", "value": "{{appName}}-batch" },
+    { "module": "kafka", "extensions": [".yml"], "search": "starter-kafka", "value": "{{appName}}-kafka" },
     { "module": "schema", "extensions": [".yml"], "search": "starter-schema", "value": "{{appName}}-schema" },
     { "module": "schema", "extensions": [".yaml"], "search": "starter-schema", "value": "{{appName}}-schema" }
   ],
@@ -188,6 +226,10 @@
     {
       "module": "batch",
       "text": "./mvnw spring-boot:run -pl {{appName}}-batch   (runs the demo job, then exits)"
+    },
+    {
+      "module": "kafka",
+      "text": "./mvnw spring-boot:run -pl {{appName}}-kafka   (starts the broker and the worker; the API publishes after each created position)"
     },
     "Provided --openapi? Align the controllers with the regenerated interfaces (compile errors point the way)."
   ]

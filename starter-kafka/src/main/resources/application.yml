@@ -1,0 +1,69 @@
+app:
+  client:
+    market-data:
+      base-url: http://localhost:8082
+      connect-timeout: 2s
+      read-timeout: 5s
+
+spring:
+  application:
+    name: starter-kafka
+  docker:
+    compose:
+      file: ../compose.yaml
+      lifecycle-management: start-only
+      start:
+        skip: never
+      profiles:
+        active: kafka
+  main:
+    web-application-type: none
+    keep-alive: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    template:
+      observation-enabled: true
+    listener:
+      observation-enabled: true
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        max.block.ms: 250
+        delivery.timeout.ms: 10000
+        request.timeout.ms: 5000
+        linger.ms: 0
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: latest
+  datasource:
+    url: jdbc:postgresql://localhost:5432/app
+    username: app
+    password: app
+    hikari:
+      maximum-pool-size: 3
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: false
+  tracing:
+    sampling:
+      probability: 1.0
+    export:
+      otlp:
+        enabled: false
+
+logging:
+  expect-correlation-id: true
+  structured:
+    json:
+      stacktrace:
+        root: first
+        max-length: 8192
