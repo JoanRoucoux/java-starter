@@ -24,7 +24,24 @@
     <java.version>25</java.version>
     <spotless-maven-plugin.version>3.10.4</spotless-maven-plugin.version>
     <palantir-java-format.version>2.96.0</palantir-java-format.version>
+    <liquibase.url>jdbc:postgresql://localhost:5432/app</liquibase.url>
+    <liquibase.username>app</liquibase.username>
+    <liquibase.password>app</liquibase.password>
   </properties>
+
+  <profiles>
+    <profile>
+      <id>password-from-environment</id>
+      <activation>
+        <property>
+          <name>env.LIQUIBASE_PASSWORD</name>
+        </property>
+      </activation>
+      <properties>
+        <liquibase.password>${env.LIQUIBASE_PASSWORD}</liquibase.password>
+      </properties>
+    </profile>
+  </profiles>
 
   <build>
     <plugins>
@@ -34,9 +51,9 @@
         <version>${liquibase.version}</version>
         <configuration>
           <changeLogFile>src/main/resources/db/changelog/changelog-master.xml</changeLogFile>
-          <url>jdbc:postgresql://localhost:5432/app</url>
-          <username>app</username>
-          <password>app</password>
+          <url>${liquibase.url}</url>
+          <username>${liquibase.username}</username>
+          <password>${liquibase.password}</password>
         </configuration>
         <dependencies>
           <dependency>

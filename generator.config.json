@@ -147,6 +147,7 @@
     { "extensions": [".xml"], "search": ">starter-domain<", "value": ">{{appName}}-domain<" },
     { "extensions": [".xml"], "search": ">starter-adapter<", "value": ">{{appName}}-adapter<" },
     { "extensions": [".xml"], "search": ">starter-api<", "value": ">{{appName}}-api<" },
+    { "module": "schema", "extensions": [".sql"], "search": "--changeset starter:", "value": "--changeset {{appName}}:" },
     { "extensions": [".xml"], "search": ">starter-schema<", "value": ">{{appName}}-schema<" },
     { "extensions": [".xml"], "search": ">starter-batch<", "value": ">{{appName}}-batch<" },
     { "extensions": [".xml"], "search": "starter-domain.version", "value": "{{appName}}-domain.version" },
