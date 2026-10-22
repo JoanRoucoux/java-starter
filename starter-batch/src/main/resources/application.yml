@@ -1,6 +1,10 @@
 spring:
   application:
     name: starter-batch
+  docker:
+    compose:
+      file: ../compose.yaml
+      lifecycle-management: start-only
   datasource:
     url: jdbc:postgresql://localhost:5432/app
     username: app
