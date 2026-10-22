@@ -36,6 +36,7 @@
             "starter-api/src/test/java/com/example/starter/application/controller/PositionControllerTest.java",
             "starter-api/src/test/java/com/example/starter/PersistenceArchitectureTest.java",
             "starter-api/src/test/java/com/example/starter/ApplicationIT.java",
+            "starter-api/src/test/java/com/example/starter/StructuredLoggingIT.java",
             "starter-api/src/test/java/com/example/starter/cucumber/CucumberSpringConfiguration.java"
           ]
         }

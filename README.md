@@ -22,6 +22,7 @@ There is **no parent pom**. The `pom.xml` at the root only aggregates: no module
 | Liquibase (`-schema` module)             | Versioned changelogs, applied out-of-band — never by an app  |
 | Spring Batch (`-batch` module)           | Chunk-oriented jobs over the same domain as the API          |
 | RestClient                               | External API client adapter (timeouts via properties)        |
+| Micrometer Tracing + ECS JSON            | One log line per use case, trace ids; `LOGGING_STRUCTURED_FORMAT_CONSOLE=ecs` in production |
 | Testcontainers, WireMock, ArchUnit       | Integration tests, client tests, architecture enforcement    |
 | Cucumber                                 | Business-scenario acceptance tests, over real HTTP           |
 | Spotless (palantir-java-format), JaCoCo  | Formatting and coverage gates                                |

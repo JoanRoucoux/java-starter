@@ -54,7 +54,9 @@ class RevaluePositionsJobConfigTest {
                 config.positionWriter(savePosition));
 
         assertThat(step.getName()).isEqualTo("revaluePositionsStep");
-        assertThat(config.revaluePositionsJob(jobRepository, step).getName()).isEqualTo("revaluePositionsJob");
+        assertThat(config.revaluePositionsJob(jobRepository, step, new JobOutcomeListener())
+                        .getName())
+                .isEqualTo("revaluePositionsJob");
     }
 
     @Test

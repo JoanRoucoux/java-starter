@@ -48,6 +48,17 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 - Schema changes only through `{{appName}}-schema`'s Liquibase changesets (`ddl-auto: validate` will fail otherwise). New changesets are Liquibase formatted SQL files (`--liquibase formatted sql`, then `--changeset {{appName}}:003-add-index`): ids are sequential and descriptive, the author is the application name. `changelog-master.xml` stays XML (`includeAll`).
 <!-- /module:schema -->
 
+## Logging
+
+- Every call to an inbound port is logged once by `UseCaseLoggingPostProcessor` (`{{appName}}-adapter`, `adapter/logging/`), which wraps each `..domain.service..` bean in a class-based proxy. Logger `{{basePackage}}.usecase`, INFO on success, WARN without stack on failure, with the fields `useCase`, `method`, `outcome`, `durationMs` and `exception`. The failure line carries the exception class only, never its message: a domain message can hold a quantity. Do not add a log line that only repeats it.
+- The domain logs through `java.lang.System.Logger`, which keeps it free of dependencies; `slf4j-jdk-platform-logging` routes it to Logback in the applications. Build the message before the call: the `log(Level, String, Object...)` overload goes through `MessageFormat` and breaks on braces and quotes. The domain test run silences JUL through `src/test/resources/logging.properties`, wired by surefire.
+- A stack trace is logged once, at the exit point: `ApiExceptionHandler` for a 502. A business refusal never carries a stack.
+<!-- module:batch -->
+- `JobOutcomeListener` logs a failed batch job once at ERROR without stack, because Spring Batch already logs the step failure with it.
+<!-- /module:batch -->
+- Never log use case arguments, return values, amounts or quantities.
+- Production writes ECS JSON: set `LOGGING_STRUCTURED_FORMAT_CONSOLE=ecs` in the environment; local stays plain text. Micrometer Tracing over OpenTelemetry (`spring-boot-starter-opentelemetry`, sampling 1.0) puts `traceId` and `spanId` on every line. Export is off through `management.tracing.export.otlp.enabled: false` and `management.otlp.metrics.export.enabled: false`, never through `management.tracing.export.enabled: false`, which in Spring Boot 4 also removes the propagator and hides the text-format correlation prefix; `logging.expect-correlation-id: true` keeps that prefix.
+
 ## Testing
 
 - Naming drives the phase: `*Test` = surefire (unit, no Docker), `*IT` = failsafe (integration, Testcontainers).

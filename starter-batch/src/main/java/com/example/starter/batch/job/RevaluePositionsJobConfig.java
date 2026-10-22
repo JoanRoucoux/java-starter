@@ -29,8 +29,10 @@ class RevaluePositionsJobConfig {
     private static final int CHUNK_SIZE = 50;
 
     @Bean
-    Job revaluePositionsJob(JobRepository jobRepository, Step revaluePositionsStep) {
+    Job revaluePositionsJob(
+            JobRepository jobRepository, Step revaluePositionsStep, JobOutcomeListener jobOutcomeListener) {
         return new JobBuilder("revaluePositionsJob", jobRepository)
+                .listener(jobOutcomeListener)
                 .start(revaluePositionsStep)
                 .build();
     }
