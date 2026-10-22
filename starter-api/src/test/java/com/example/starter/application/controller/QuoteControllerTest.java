@@ -68,4 +68,9 @@ class QuoteControllerTest {
 
         mockMvc.perform(get("/quote/{isin}", ISIN).with(jwt())).andExpect(status().isBadGateway());
     }
+
+    @Test
+    void rejectsAMalformedIsinWithBadRequest() throws Exception {
+        mockMvc.perform(get("/quote/{isin}", "bad").with(jwt())).andExpect(status().isBadRequest());
+    }
 }
