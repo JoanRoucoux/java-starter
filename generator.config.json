@@ -131,6 +131,12 @@
   ],
   "replace": [
     {
+      "module": "schema",
+      "file": "{{appName}}-schema/Dockerfile",
+      "search": "starter-schema",
+      "value": "{{appName}}-schema"
+    },
+    {
       "file": "{{appName}}-api/openapi/openapi.yaml",
       "search": "java-starter API",
       "value": "{{title}} API",
@@ -154,7 +160,8 @@
     { "extensions": [".xml"], "search": "starter-adapter.version", "value": "{{appName}}-adapter.version" },
     { "extensions": [".xml"], "search": "starter-schema.version", "value": "{{appName}}-schema.version" },
     { "extensions": [".yml"], "search": "starter-api", "value": "{{appName}}-api" },
-    { "module": "batch", "extensions": [".yml"], "search": "starter-batch", "value": "{{appName}}-batch" }
+    { "module": "batch", "extensions": [".yml"], "search": "starter-batch", "value": "{{appName}}-batch" },
+    { "module": "schema", "extensions": [".yaml"], "search": "starter-schema", "value": "{{appName}}-schema" }
   ],
   "openapiTarget": "{{appName}}-api/openapi/openapi.yaml",
   "install": {
@@ -172,7 +179,7 @@
     "./mvnw verify                            (mvnw.cmd on Windows cmd; needs Docker)",
     {
       "module": "schema",
-      "text": "./mvnw liquibase:update -pl {{appName}}-schema   (migrates the local PostgreSQL — no application ever does this itself)"
+      "text": "docker compose up -d --wait   (starts the local PostgreSQL and applies the schema; no application ever migrates it itself)"
     },
     "./mvnw spring-boot:run -pl {{appName}}-api",
     {
