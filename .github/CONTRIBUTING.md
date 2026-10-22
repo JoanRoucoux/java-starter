@@ -6,7 +6,7 @@ Thanks for your interest in this project!
 
 - JDK 25 (the Maven wrapper takes care of Maven itself)
 - Docker (for the Testcontainers integration tests)
-- [lefthook](https://lefthook.dev) — install it, then run `lefthook install` once at the repository
+- [lefthook](https://lefthook.dev): install it, then run `lefthook install` once at the repository
   root so the pre-commit hook (Spotless auto-format) is active.
 
 ## Workflow
@@ -18,7 +18,7 @@ Thanks for your interest in this project!
    ```bash
    ./mvnw verify
    ```
-4. Commit using a [Conventional Commits](https://www.conventionalcommits.org) message (`feat: ...`, `fix: ...`, `chore: ...`) — release-please and the reviewers rely on them.
+4. Commit using a [Conventional Commits](https://www.conventionalcommits.org) message (`feat: ...`, `fix: ...`, `chore: ...`); release-please and the reviewers rely on them.
 5. Open a Pull Request filling in the provided template.
 
 ## Reporting a bug or requesting a feature

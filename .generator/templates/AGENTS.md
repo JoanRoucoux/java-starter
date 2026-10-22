@@ -16,6 +16,12 @@ Guidance for AI coding agents working in this repository. See the [README](READM
 | `./mvnw verify -DskipITs`                      | Everything except the Testcontainers tests (no Docker)    |
 | `./mvnw spotless:check` / `spotless:apply`     | Formatting check / fix (palantir-java-format)             |
 | `./mvnw spring-boot:run -pl {{appName}}-api`   | Run the API locally                                       |
+<!-- module:batch -->
+| `./mvnw spring-boot:run -pl {{appName}}-batch`   | Run the demo job, then exit                               |
+<!-- /module:batch -->
+<!-- module:kafka -->
+| `./mvnw spring-boot:run -pl {{appName}}-kafka`   | Run the Kafka worker (starts the broker)                  |
+<!-- /module:kafka -->
 
 Before considering a change done, run the same pipeline as CI: `spotless:check` then `verify` (needs Docker for the `*IT` tests).
 
@@ -27,7 +33,6 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 <!-- module:schema -->
 - `{{appName}}-schema`: Liquibase changelogs only, no Java code. Owns the schema and is applied out-of-band, by ops or a pipeline (the `schema` compose service, or `./mvnw liquibase:update -pl {{appName}}-schema`); **no running application ever migrates the database**. The application modules depend on it at **test scope only** (never widen, never add it to `{{appName}}-adapter`), purely so their integration tests can migrate their own throwaway Testcontainers database against the real changelog before `ddl-auto: validate` checks it.
 - **The migration password never goes on a command line**: `{{appName}}-schema`'s `liquibase.url`, `liquibase.username` and `liquibase.password` are Maven properties defaulting to the local compose database, and exporting `LIQUIBASE_PASSWORD` activates the `password-from-environment` profile. A `-Dliquibase.password=` shows in `ps` and in image history.
-- **Each runnable module has its own `Dockerfile`, built from the repository root** (`docker build -f {{appName}}-api/Dockerfile .`): the build stage copies the whole tree, and the jar paths are globs (`*-api/target/*.jar`) so no rename rule is needed. The runtime stage runs as the unprivileged user `app` and the entrypoint sizes the JVM to the container (`-XX:MaxRAMPercentage=60 -XX:+ExitOnOutOfMemoryError`). The build image stays on the runtime's JDK (Java 25): a JDK bump changes both together.
 - **The `schema` compose service is a one-shot migration image** (`{{appName}}-schema/Dockerfile`, offline after build, `LIQUIBASE_PASSWORD` for the password). `schema-applied` exists because `docker compose up --wait` returns while a one-shot container still runs: it only becomes healthy once `schema` completed successfully, and its `org.springframework.boot.ignore` label keeps Spring Boot's Docker Compose support from treating it as a service. A changed changeset needs `docker compose up -d --build schema`.
 <!-- /module:schema -->
 <!-- module:batch -->
@@ -42,6 +47,7 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 ## Conventions
 
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org).
+- No comments in code and configuration; generator markers and `# vX.Y.Z` after action SHAs are the only exceptions. A trap goes in Gotchas.
 - Formatting is Spotless/palantir; records for immutable data; constructor injection without Lombok. A [lefthook](https://lefthook.dev) pre-commit hook runs `spotless:apply` and re-stages the result automatically (`lefthook install` once after cloning).
 - Any number the API reads must fit its column: `BoundedDecimalDeserializer` (`application/json`) refuses a `BigDecimal` the demo `numeric(19,4)` cannot hold with a 400, before any arithmetic runs. Change the bounds in `DecimalBounds` together with the column.
 - A `TechnicalException` message names the dependency, never the upstream response; the full text goes to the log through the cause.
@@ -78,6 +84,8 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 
 ## Gotchas
 
+- **Each runnable module has its own `Dockerfile`, built from the repository root** (`docker build -f {{appName}}-api/Dockerfile .`): the build stage copies the whole tree, and the jar paths are globs (`*-api/target/*.jar`) so no rename rule is needed. The runtime stage runs as the unprivileged user `app` and the entrypoint sizes the JVM to the container (`-XX:MaxRAMPercentage=60 -XX:+ExitOnOutOfMemoryError`). The build image stays on the runtime's JDK (Java 25): a JDK bump changes both together.
+- **`{{appName}}-adapter` declares `spring-web` and `spring-boot-restclient` itself**: `spring-web` is where `RestClient` lives and it is not pulled in transitively, and `spring-boot-restclient` provides the `RestClient.Builder` bean.
 - The aggregator declares the Spotless plugin although it holds no Java: `spotless:check` from the root resolves the plugin prefix per project and fails on any project that lacks it.
 <!-- module:schema -->
 - The demo table is named `positions` (plural): `POSITION` is a reserved word in PostgreSQL.
@@ -85,9 +93,11 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 - **Without Docker, `{{appName}}-adapter`'s coverage gate fails under `-DskipITs`**: expected, not a regression; its persistence code is only exercised by `*IT` tests.
 - **`spring-boot:run` runs with the module as working directory**, so Spring Boot's Docker Compose support looks for `compose.yaml` there and fails with "No Docker Compose file found". `spring.docker.compose.file: ../compose.yaml` points it at the root file. `lifecycle-management: start-only` keeps PostgreSQL up when an application exits, because the others share it.
 - **`spring-boot:run -pl <module>` resolves sibling modules from `~/.m2`**, not from the reactor: run `./mvnw install -DskipTests` after changing a sibling module, or the application starts on stale jars.
+- **A changeset's identity is id + author + path and its checksum is its content**: renaming a file or reformatting an applied changeset replays it or fails the migration. A migration killed halfway leaves a `DATABASECHANGELOGLOCK` row; after checking that no migration is running, `update databasechangeloglock set locked = false, lockgranted = null, lockedby = null;` releases it.
+- **The application modules need `spring-boot-liquibase` in test scope**: `liquibase-core` alone never migrates the Testcontainers database the full-boot tests validate against.
 <!-- /module:schema -->
 <!-- module:batch -->
-- **`spring-boot-{{appName}}-batch` in Spring Boot 4 has no JDBC job repository**: `spring.batch.jdbc.initialize-schema` is an unknown property there and the repository is in memory. `spring-boot-{{appName}}-batch-jdbc` provides the JDBC one, and its schema would have to be the Spring Batch 6 one, not the 5.2.2 tables.
+- **`spring-boot-starter-batch` in Spring Boot 4 has no JDBC job repository**: `spring.batch.jdbc.initialize-schema` is an unknown property there and the repository is in memory. `spring-boot-starter-batch-jdbc` provides the JDBC one, and its schema would have to be the Spring Batch 6 one, not the 5.2.2 tables.
 - `{{appName}}-batch`'s `hibernate.jdbc.batch_size` equals the step's `CHUNK_SIZE` (50) so a chunk is written in one JDBC batch: keep them in step.
 <!-- /module:batch -->
 <!-- module:kafka -->
@@ -103,10 +113,8 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 - **Dependabot ignores a PostgreSQL major in `docker-compose`**: a major cannot read the previous data directory, so that upgrade is a dump and restore.
 - **An entity with an assigned id and no `@Version` makes `save()` run a SELECT before every write**: harmless for the demo, but on a hot path use `Persistable` with `isNew()` or a native upsert.
 <!-- /module:schema -->
-- Dependabot ignores majors of `eclipse-temurin` and `maven` in the Dockerfiles: the build and runtime JDK move together by hand.
+- Dependabot ignores majors of `eclipse-temurin` and every update of `maven` in the Dockerfiles: the build image is bumped by hand together with the runtime JDK.
 - **`TransientFailureRetryInterceptor` is for idempotent calls only**: `MarketDataClientConfig` wires it onto the injected `RestClient.Builder` (never a static `RestClient.builder()`, which loses Boot's observation customizer). It retries an `IOException`, a 5xx and a 429 whose `Retry-After` is at most 5 s, after 1 s then 3 s, and never a timeout. A client that POSTs must not get it: a retried send that had gone through would run twice.
-- **A changeset's identity is id + author + path and its checksum is its content**: renaming a file or reformatting an applied changeset replays it or fails the migration. A migration killed halfway leaves a `DATABASECHANGELOGLOCK` row; after checking that no migration is running, `update databasechangeloglock set locked = false, lockgranted = null, lockedby = null;` releases it.
 - **A domain invariant throws a `BusinessException`, never an `IllegalArgumentException`**: the latter is not mapped and answers 500.
 - **Every module pom keeps `<relativePath/>` empty in its `<parent>`**: without it Maven looks for the parent at `../pom.xml`.
-- **`{{appName}}-adapter` declares `spring-web` and `spring-boot-restclient` itself**: `spring-web` is where `RestClient` lives and it is not pulled in transitively, and `spring-boot-restclient` provides the `RestClient.Builder` bean. The test scope of the application modules also needs `spring-boot-liquibase`: `liquibase-core` alone never migrates the Testcontainers database.
 - GitHub Actions in `.github/workflows/` are pinned by commit SHA; when adding one, pin it the same way.

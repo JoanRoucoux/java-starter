@@ -42,7 +42,7 @@ The database schema is applied separately, and only when it changes:
 docker compose up -d --wait                          # starts PostgreSQL and applies the schema (compose.yaml)
 ```
 
-`spring-boot:run` starts the same stack when it is down. After adding a changeset, `docker compose up -d --build schema` or `./mvnw liquibase:update -pl {{appName}}-schema` applies it. Starting or restarting an application never touches the schema. Each runnable module has its own image, built from the repository root: `docker build -f {{appName}}-api/Dockerfile .`.
+`spring-boot:run` starts the same stack when it is down. After adding a changeset, `docker compose up -d --build schema` or `./mvnw liquibase:update -pl {{appName}}-schema` applies it. Starting or restarting an application never touches the schema.
 
 <!-- /module:schema -->
 <!-- module:batch -->
@@ -61,6 +61,8 @@ The worker starts the broker (compose profile `kafka`) and consumes what the API
 ```
 
 <!-- /module:kafka -->
+Each runnable module has its own image, built from the repository root: `docker build -f {{appName}}-api/Dockerfile .`.
+
 Without an identity provider, activate the `local` profile to disable authentication: `./mvnw spring-boot:run -pl {{appName}}-api -Dspring-boot.run.profiles=local`.
 
 ## Project structure
@@ -90,7 +92,7 @@ pom.xml                    Aggregator only: <modules>, no inheritance
 <!-- /module:kafka -->
 ```
 
-Dependency rules: `{{appName}}-domain` depends on nothing but the JDK (a Maven guarantee); `{{appName}}-adapter` implements the domain's outbound ports and reaches the domain only through its ports, model and exceptions (ArchUnit); `{{appName}}-api`/`{{appName}}-batch` depend on `{{appName}}-adapter` at **runtime scope only**, so neither can reach adapter internals even by accident. Errors map by family in the `@RestControllerAdvice`: `BusinessException` -> 422, `TechnicalException` -> 502; authentication and authorization (401/403) are handled by Spring Security.
+Dependency rules: `{{appName}}-domain` depends on nothing but the JDK (a Maven guarantee); `{{appName}}-adapter` implements the domain's outbound ports and reaches the domain only through its ports, model and exceptions (ArchUnit); the applications depend on `{{appName}}-adapter` at **runtime scope only**, so none can reach adapter internals even by accident. Errors map by family in the `@RestControllerAdvice`: `BusinessException` -> 422, `TechnicalException` -> 502; authentication and authorization (401/403) are handled by Spring Security.
 
 <!-- module:schema -->
 `{{appName}}-schema` is applied out-of-band (ops or pipeline, `liquibase:update`); a running application **never** migrates the database itself. The application modules depend on it at **test scope only**, so their integration tests can migrate their own throwaway Testcontainers database with the real changelog.

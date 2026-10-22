@@ -1,7 +1,7 @@
 Feature: Get the current price of an instrument
 
   Business scenarios for GET /quote/{isin}, exercised end-to-end over real HTTP.
-  Reference implementation for future business-scenario features — add one .feature
+  Reference implementation for future business-scenario features: add one .feature
   file per feature, with its own step definitions in the cucumber/ package.
 
   Scenario: A known instrument has a quote
