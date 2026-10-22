@@ -7,12 +7,7 @@ import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
 import org.junit.jupiter.api.Test;
 
-/**
- * The hexagonal rules as they apply to the batch. The application module has its own
- * {@code ArchitectureTest}: neither module sees the other's classes, so each enforces its side.
- */
 class BatchArchitectureTest {
-
     private static final JavaClasses CLASSES = new ClassFileImporter()
             .withImportOption(new ImportOption.DoNotIncludeTests())
             .importPackages("com.example.starter");

@@ -21,10 +21,8 @@ import org.mockito.AdditionalAnswers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-/** The whole domain tests without Spring: plain JUnit and Mockito against the ports. */
 @ExtendWith(MockitoExtension.class)
 class PositionServiceTest {
-
     private static final String ISIN = "US0378331005";
 
     @Mock

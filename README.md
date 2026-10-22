@@ -9,17 +9,17 @@
 
 Spring Boot starter for backends in **hexagonal architecture**, built as **separate modules you pick from**: `-domain` (framework-free model, ports, services), `-adapter` (their implementations) and `-api` (Spring Boot main + REST exposition) always, plus `-schema` (Liquibase changelogs and the PostgreSQL persistence they own) when there is a database, `-batch` (Spring Batch over the same hexagon) when there are jobs, and `-kafka` (a worker consuming the events the API publishes) when other systems react to what it writes. Built to back a frontend application (see [angular-starter-web](https://github.com/JoanRoucoux/angular-starter-web)) and attach to a database and/or one or more external APIs.
 
-There is **no parent pom**. The `pom.xml` at the root only aggregates: no module inherits from it, each one is parented by `spring-boot-starter-parent` and carries its own dependencies and quality gates. A module can therefore be dropped — or moved to its own repository — without touching anything else.
+There is **no parent pom**. The `pom.xml` at the root only aggregates: no module inherits from it; each one is parented by `spring-boot-starter-parent` and carries its own dependencies and quality gates. A module can therefore be dropped, or moved to its own repository, without touching anything else.
 
 ## Stack
 
 | Tool                                     | Role                                                         |
 | ---------------------------------------- | ------------------------------------------------------------ |
 | Spring Boot 4.1 / Java 25                | Application framework, Maven modules with wrapper            |
-| openapi-generator (contract-first)       | `openapi/openapi.yaml` → generated interfaces + DTOs         |
+| openapi-generator (contract-first)       | `openapi/openapi.yaml` -> generated interfaces + DTOs        |
 | Spring Security (OAuth2 resource server) | Stateless JWT validation                                     |
 | Spring Data JPA + PostgreSQL             | Persistence adapter (`schema` module)                        |
-| Liquibase (`-schema` module)             | Versioned changelogs, applied out-of-band — never by an app  |
+| Liquibase (`-schema` module)             | Versioned changelogs, applied out-of-band; never by an app  |
 | Spring Batch (`-batch` module)           | Chunk-oriented jobs over the same domain as the API          |
 | Spring Kafka (`-kafka` module)           | `position.opened` event published by the API, consumed by a worker |
 | RestClient                               | External API client adapter (timeouts via properties)        |
@@ -39,7 +39,7 @@ starter-generator portfolio --starter java --base-package com.acme.portfolio \
 
 `--modules ""` generates an API with no database at all: the persistence adapter, the JPA dependencies and the position demo go away, and what remains is a service orchestrating external APIs. `--modules schema` is the default. `batch` and `kafka` require `schema` (the demo job and the worker read positions).
 
-Module directories, Maven artifactIds and the Java base package take your application's identity at generation time. The demo features are **kept** as reference implementations — replace them with your own. If you provide `--openapi`, align the controllers with the regenerated interfaces afterwards (the compile errors point the way).
+Module directories, Maven artifactIds and the Java base package take your application's identity at generation time. The demo features are **kept** as reference implementations; replace them with your own. If you provide `--openapi`, align the controllers with the regenerated interfaces afterwards (the compile errors point the way).
 
 ## Getting started
 
@@ -47,7 +47,7 @@ Prerequisites: **JDK 25** and **Docker** (PostgreSQL via Testcontainers and Dock
 
 ```bash
 ./mvnw verify                                # build + unit/integration tests + architecture + coverage
-docker compose up -d --wait                  # starts PostgreSQL and applies the schema (compose.yaml) — no app ever migrates it itself
+docker compose up -d --wait                  # starts PostgreSQL and applies the schema (compose.yaml); no app ever migrates it itself
 ./mvnw spring-boot:run -pl starter-api       # starts the same stack when it is down, then the API on :8080
 ./mvnw spring-boot:run -pl starter-batch     # runs the demo job, then exits
 ./mvnw spring-boot:run -pl starter-kafka     # starts the broker (compose profile kafka) and the worker
@@ -62,40 +62,40 @@ pom.xml                  Aggregator only: <modules>, no inheritance
 compose.yaml             Local PostgreSQL
 starter-domain/          model/, exception/ (business/ holds BusinessException + its subclasses,
                          technical/ holds TechnicalException + its), port/in/ (use cases),
-                         port/out/ (repositories, external providers), service/ — plain Java,
-                         ZERO dependencies (a Maven guarantee, not just a convention)
+                         port/out/ (repositories, external providers), service/ (plain Java,
+                         ZERO dependencies: a Maven guarantee, not just a convention)
 starter-adapter/         persistence/ (entity/, repository/, adapter/),
-                         client/ (properties/, config/, adapter/) — depends on starter-domain
+                         client/ (properties/, config/, adapter/); depends on starter-domain
 starter-api/             Spring Boot application: REST exposition
-├── openapi/openapi.yaml The REST contract (source of truth, edited first)
-├── application/         controller/ (implements the generated interfaces), mapper/ (domain↔DTO,
-│                        one class per resource), exception/ (@RestControllerAdvice → problem details)
-├── infrastructure/      config/ (SecurityConfig, one XxxDomainConfig per slice — the composition root)
-└── generated/           openapi build output (never edited, never committed)
-starter-schema/          Liquibase changelogs (db/changelog/) — owns the schema, no Java code
+|-- openapi/openapi.yaml The REST contract (source of truth, edited first)
+|-- application/         controller/ (implements the generated interfaces), mapper/ (domain<->DTO,
+|                        one class per resource), exception/ (@RestControllerAdvice -> problem details)
+|-- infrastructure/      config/ (SecurityConfig, one XxxDomainConfig per slice; the composition root)
+`-- generated/           openapi build output (never edited, never committed)
+starter-schema/          Liquibase changelogs (db/changelog/): owns the schema, no Java code
 starter-batch/           Spring Boot application: Spring Batch jobs over starter-domain/starter-adapter
 starter-kafka/           Spring Boot worker: consumes the position.opened events the API publishes
 ```
 
 Dependency rules:
 
-- `starter-domain` depends on nothing but the JDK — no Spring, no JPA. Enforced by Maven itself: there is nothing on its classpath to depend on.
-- `starter-adapter` implements the domain's outbound ports and reaches the domain only through its ports, model and exceptions — never the domain services (ArchUnit). `persistence` and `client` never see each other (ArchUnit).
-- `starter-api` and `starter-batch` depend on `starter-adapter` at **runtime scope only** — adapters are wired into the context but invisible at compile time, so neither the REST side nor the batch side can reach adapter internals, even by accident.
-- Errors map by family in the `@RestControllerAdvice`: `BusinessException` → 422, `TechnicalException` → 502 (authentication and authorization — 401/403 — are handled by Spring Security's filter chain).
-- `starter-schema` is applied out-of-band (ops or pipeline, `liquibase:update`) — a running application **never** migrates the database. `starter-api` and `starter-batch` depend on it at **test scope only**, so their integration tests can migrate their own throwaway Testcontainers database with the real changelog.
+- `starter-domain` depends on nothing but the JDK; no Spring, no JPA. Enforced by Maven itself: there is nothing on its classpath to depend on.
+- `starter-adapter` implements the domain's outbound ports and reaches the domain only through its ports, model and exceptions; never the domain services (ArchUnit). `persistence` and `client` never see each other (ArchUnit).
+- `starter-api` and `starter-batch` depend on `starter-adapter` at **runtime scope only**: adapters are wired into the context but invisible at compile time, so neither the REST side nor the batch side can reach adapter internals, even by accident.
+- Errors map by family in the `@RestControllerAdvice`: `BusinessException` -> 422, `TechnicalException` -> 502 (authentication and authorization, 401/403, are handled by Spring Security's filter chain).
+- `starter-schema` is applied out-of-band (ops or pipeline, `liquibase:update`); a running application **never** migrates the database. `starter-api` and `starter-batch` depend on it at **test scope only**, so their integration tests can migrate their own throwaway Testcontainers database with the real changelog.
 
 ## The demo features
 
 Two complete hexagonal slices, both meant to be replaced:
 
-- **`quote`** — `GET /quote/{isin}` reads an instrument's price from an external provider: controller → mapper → inbound port → domain service → outbound port → `RestClient` adapter, with an unknown instrument surfacing as 422 and a failing provider as 502. It needs no database, so it is the slice that survives in an application generated without `schema`.
-- **`position`** — `POST /position` and `GET /position/{id}` add persistence: JPA entity, repository and adapter behind read/write ports, backed by a Liquibase changeset. The `-batch` module's `revaluePositionsJob` walks the same positions through the same domain, proving the API and the batch share one hexagon.
+- **`quote`**: `GET /quote/{isin}` reads an instrument's price from an external provider: controller -> mapper -> inbound port -> domain service -> outbound port -> `RestClient` adapter, with an unknown instrument surfacing as 422 and a failing provider as 502. It needs no database, so it is the slice that survives in an application generated without `schema`.
+- **`position`**: `POST /position` and `GET /position/{id}` add persistence: JPA entity, repository and adapter behind read/write ports, backed by a Liquibase changeset. The `-batch` module's `revaluePositionsJob` walks the same positions through the same domain, proving the API and the batch share one hexagon.
 
 ## Contract-first workflow
 
 1. Edit `starter-api/openapi/openapi.yaml` (the contract comes first).
-2. `./mvnw compile` regenerates the interfaces and DTOs (`*.generated.api`, `*.generated.model` — build output, never edited, never committed).
+2. `./mvnw compile` regenerates the interfaces and DTOs (`*.generated.api`, `*.generated.model`: build output, never edited, never committed).
 3. Implement the new interface methods in a controller, mapping DTOs to the domain through the inbound ports.
 
 The same spec can drive the frontend's generated client (Orval in angular-starter-web).
@@ -103,17 +103,17 @@ The same spec can drive the frontend's generated client (Orval in angular-starte
 ## Testing
 
 - **Unit tests** (`*Test`, surefire): domain services with plain JUnit/Mockito, controllers with `@WebMvcTest` + `spring-security-test` (`jwt()`), external clients and the batch step's glue without any Spring context.
-- **Integration tests** (`*IT`, failsafe): persistence adapters with `@DataJpaTest` + Testcontainers (schema generated from the JPA mapping — `ddl-auto: create-drop`, local to those tests); full application boot and the real job with `@SpringBootTest` (the real `starter-schema` changelog is migrated first, so `ddl-auto: validate` has a schema to check; security answers 401 without contacting any IdP).
-- **Business scenarios** ([CucumberIT](starter-api/src/test/java/com/example/starter/cucumber/CucumberIT.java), failsafe): `.feature` files under `starter-api/src/test/resources/features/` run over real HTTP through the full Spring context, with security opened up and the market data provider stubbed with WireMock — `quote.feature` is the reference scenario for adding your own as features grow.
+- **Integration tests** (`*IT`, failsafe): persistence adapters with `@DataJpaTest` + Testcontainers (schema generated from the JPA mapping, `ddl-auto: create-drop`, local to those tests); full application boot, the real job and the ECS log output with `@SpringBootTest` (the real `starter-schema` changelog is migrated first, so `ddl-auto: validate` has a schema to check; security answers 401 without contacting any IdP).
+- **Business scenarios** ([CucumberIT](starter-api/src/test/java/com/example/starter/cucumber/CucumberIT.java), failsafe): `.feature` files under `starter-api/src/test/resources/features/` run over real HTTP through the full Spring context, with security opened up and the market data provider stubbed with WireMock; `quote.feature` is the reference scenario for adding your own as features grow.
 - **Architecture** ([ArchitectureTest](starter-api/src/test/java/com/example/starter/ArchitectureTest.java) and its counterparts): the rules above, checked on every build.
-- **Coverage**: JaCoCo gate at 70% lines per module — intentionally lower than the starter's actual coverage so generated applications are not blocked from day one.
+- **Coverage**: JaCoCo gate at 70% lines per module, intentionally lower than the starter's actual coverage so generated applications are not blocked from day one.
 
 ## Quality and conventions
 
 - Everything in the repo is written in **English** (code, comments, docs, commit messages).
-- Formatting: Spotless with palantir-java-format — `./mvnw spotless:apply` / `spotless:check`. A [lefthook](https://lefthook.dev) pre-commit hook runs `spotless:apply` and re-stages the result automatically (`lefthook install` once after cloning).
+- Formatting: Spotless with palantir-java-format: `./mvnw spotless:apply` / `spotless:check`. A [lefthook](https://lefthook.dev) pre-commit hook runs `spotless:apply` and re-stages the result automatically (`lefthook install` once after cloning).
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org): CI and release-please rely on them.
-- `spring.jpa.hibernate.ddl-auto: validate` — the schema only changes through `starter-schema`'s Liquibase changelogs, applied out-of-band (never by an application).
+- `spring.jpa.hibernate.ddl-auto: validate`: the schema only changes through `starter-schema`'s Liquibase changelogs, applied out-of-band (never by an application).
 
 ## Contributing
 

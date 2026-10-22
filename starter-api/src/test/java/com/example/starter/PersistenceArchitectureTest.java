@@ -7,14 +7,7 @@ import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.core.importer.ImportOption;
 import org.junit.jupiter.api.Test;
 
-/**
- * The rules that only make sense once the application has a persistence adapter. They live apart
- * from {@link ArchitectureTest} so that an application generated without the schema module drops
- * this file whole: ArchUnit fails a rule whose subject matches nothing, so these two would break
- * a build that has no persistence package at all.
- */
 class PersistenceArchitectureTest {
-
     private static final JavaClasses CLASSES = new ClassFileImporter()
             .withImportOption(new ImportOption.DoNotIncludeTests())
             .importPackages("com.example.starter");

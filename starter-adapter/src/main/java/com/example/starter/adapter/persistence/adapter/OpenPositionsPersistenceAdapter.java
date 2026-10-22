@@ -8,10 +8,8 @@ import com.example.starter.domain.port.out.LoadOpenPositionsPort;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
-/** Outbound adapter: bulk read of the still-open positions, used by the batch module. */
 @Component
 class OpenPositionsPersistenceAdapter implements LoadOpenPositionsPort {
-
     private final OpenPositionJpaRepository jpaRepository;
 
     OpenPositionsPersistenceAdapter(OpenPositionJpaRepository jpaRepository) {

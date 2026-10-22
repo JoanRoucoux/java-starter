@@ -11,9 +11,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
-/** Use case implementations. Plain Java: wired as beans by the application module. */
 public class PositionService implements CreatePositionUseCase, GetPositionUseCase {
-
     private final SavePositionPort savePositionPort;
     private final LoadPositionPort loadPositionPort;
     private final MarketDataPort marketDataPort;

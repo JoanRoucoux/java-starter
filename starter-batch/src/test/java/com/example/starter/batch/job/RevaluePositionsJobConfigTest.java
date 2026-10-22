@@ -19,10 +19,8 @@ import org.springframework.batch.core.step.Step;
 import org.springframework.batch.infrastructure.item.Chunk;
 import org.springframework.transaction.PlatformTransactionManager;
 
-/** The step's glue, without a Spring context: each piece talks to a port or a use case only. */
 @ExtendWith(MockitoExtension.class)
 class RevaluePositionsJobConfigTest {
-
     private final RevaluePositionsJobConfig config = new RevaluePositionsJobConfig();
 
     @Mock

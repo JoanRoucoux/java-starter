@@ -7,10 +7,8 @@ import com.example.starter.generated.model.QuoteResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
-/** Inbound adapter: implements the generated contract and delegates to the domain's use cases. */
 @RestController
 class QuoteController implements QuoteApi {
-
     private final GetQuoteUseCase getQuote;
     private final QuoteRestMapper mapper;
 

@@ -12,14 +12,8 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-/**
- * Maps domain errors to RFC 9457 problem details by exception family: business-rule violations
- * become 422, technical failures of an outbound dependency become 502. (Authentication and
- * authorization failures — 401/403 — are handled by Spring Security's filter chain, not here.)
- */
 @RestControllerAdvice
 class ApiExceptionHandler {
-
     private static final Logger log = LoggerFactory.getLogger(ApiExceptionHandler.class);
 
     @ExceptionHandler(BusinessException.class)

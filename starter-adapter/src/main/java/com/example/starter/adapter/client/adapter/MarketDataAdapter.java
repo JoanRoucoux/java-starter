@@ -9,10 +9,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
-/** Outbound adapter: implements the domain's market data port against an external quote API. */
 @Component
 class MarketDataAdapter implements MarketDataPort {
-
     private final RestClient restClient;
 
     MarketDataAdapter(RestClient marketDataRestClient) {
@@ -26,10 +24,8 @@ class MarketDataAdapter implements MarketDataPort {
                     restClient.get().uri("/quotes/{isin}", isin).retrieve().body(MarketDataQuote.class);
             return Optional.ofNullable(quote).map(MarketDataQuote::price);
         } catch (HttpClientErrorException.NotFound notFound) {
-            // No quote for this instrument: a business outcome, surfaced as an empty result.
             return Optional.empty();
         } catch (RestClientException failure) {
-            // Provider unreachable, timed out or answered with an error: a technical failure.
             throw new MarketDataUnavailableException(isin, failure);
         }
     }

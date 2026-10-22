@@ -10,14 +10,9 @@ import org.springframework.security.config.annotation.web.configurers.CsrfConfig
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
-/**
- * Stateless OAuth2 resource server: every request needs a valid JWT, except the health probe.
- * The {@code local} profile sets {@code app.security.permit-all=true} to develop without an IdP.
- */
 @Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
 public class SecurityConfig {
-
     @Bean
     SecurityFilterChain securityFilterChain(
             HttpSecurity http, @Value("${app.security.permit-all:false}") boolean permitAll) throws Exception {

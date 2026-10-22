@@ -13,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
 
-/** Step definitions for quote.feature. */
 public class QuoteSteps {
-
     @Autowired
     private TestRestTemplate restTemplate;
 

@@ -24,21 +24,14 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-/**
- * Runs the real job against a real PostgreSQL migrated with the schema module's changelog (test
- * scope only — the batch never migrates a database itself). The market data provider is mocked at
- * the port: the client adapter has its own test.
- */
 @SpringBootTest
 @TestPropertySource(
         properties = {
             "spring.liquibase.change-log=classpath:db/changelog/changelog-master.xml",
-            // The job is launched explicitly below, not by Spring Boot's startup runner.
             "spring.batch.job.enabled=false"
         })
 @Testcontainers
 class RevaluePositionsJobIT {
-
     private static final String ISIN = "US0378331005";
 
     @Container
