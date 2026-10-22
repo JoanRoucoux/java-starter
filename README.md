@@ -45,12 +45,12 @@ Prerequisites: **JDK 25** and **Docker** (PostgreSQL via Testcontainers and Dock
 
 ```bash
 ./mvnw verify                                # build + unit/integration tests + architecture + coverage
-./mvnw liquibase:update -pl starter-schema   # migrates the local PostgreSQL (compose.yaml) — no app ever does this itself
-./mvnw spring-boot:run -pl starter-api       # starts PostgreSQL (compose.yaml) and the API on :8080
+docker compose up -d --wait                  # starts PostgreSQL and applies the schema (compose.yaml) — no app ever migrates it itself
+./mvnw spring-boot:run -pl starter-api       # starts the same stack when it is down, then the API on :8080
 ./mvnw spring-boot:run -pl starter-batch     # runs the demo job, then exits
 ```
 
-`liquibase:update` only needs to run once (and again after adding a changeset) — starting or restarting an application does not touch the schema. Without an identity provider, activate the `local` profile to disable authentication: `./mvnw spring-boot:run -pl starter-api -Dspring-boot.run.profiles=local`.
+The `schema` service of the compose file migrates PostgreSQL from the repository; after adding a changeset, `docker compose up -d --build schema` or `./mvnw liquibase:update -pl starter-schema` applies it. Starting or restarting an application never touches the schema. Each runnable module has its own image, built from the repository root: `docker build -f starter-api/Dockerfile .` (likewise `starter-batch`, `starter-schema`). Without an identity provider, activate the `local` profile to disable authentication: `./mvnw spring-boot:run -pl starter-api -Dspring-boot.run.profiles=local`.
 
 ## Project structure
 

@@ -12,3 +12,18 @@ services:
       interval: 2s
       timeout: 3s
       retries: 30
+
+  schema:
+    build: { context: ., dockerfile: starter-schema/Dockerfile }
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  schema-applied:
+    image: postgres:17.11
+    command: ['sleep', 'infinity']
+    labels:
+      org.springframework.boot.ignore: 'true'
+    depends_on:
+      schema:
+        condition: service_completed_successfully

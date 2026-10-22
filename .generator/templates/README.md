@@ -35,10 +35,10 @@ Prerequisites: **JDK 25** and **Docker**. Maven comes with the wrapper (`./mvnw`
 The database schema is applied separately, and only when it changes:
 
 ```bash
-./mvnw liquibase:update -pl {{appName}}-schema       # migrates the local PostgreSQL (compose.yaml)
+docker compose up -d --wait                          # starts PostgreSQL and applies the schema (compose.yaml)
 ```
 
-`liquibase:update` only needs to run once, and again after adding a changeset — starting or restarting an application never touches the schema.
+`spring-boot:run` starts the same stack when it is down. After adding a changeset, `docker compose up -d --build schema` or `./mvnw liquibase:update -pl {{appName}}-schema` applies it. Starting or restarting an application never touches the schema. Each runnable module has its own image, built from the repository root: `docker build -f {{appName}}-api/Dockerfile .`.
 
 <!-- /module:schema -->
 <!-- module:batch -->
