@@ -43,7 +43,7 @@
       {
         "id": "batch",
         "label": "batch",
-        "hint": "Spring Batch application running jobs over the same hexagon (requires schema)",
+        "hint": "Spring Batch application running jobs over the same hexagon (requires schema: the demo job reads and writes positions)",
         "default": false,
         "requires": ["schema"],
         "markers": [
@@ -58,9 +58,7 @@
             "starter-adapter/src/main/java/com/example/starter/adapter/persistence/repository/OpenPositionJpaRepository.java",
             "starter-adapter/src/main/java/com/example/starter/adapter/persistence/adapter/OpenPositionsPersistenceAdapter.java",
             "starter-domain/src/test/java/com/example/starter/domain/service/RevaluePositionServiceTest.java",
-            "starter-adapter/src/test/java/com/example/starter/adapter/persistence/adapter/OpenPositionsPersistenceAdapterIT.java",
-            "starter-schema/src/main/resources/db/changelog/changesets/002-spring-batch-metadata.xml",
-            "starter-schema/src/main/resources/db/changelog/sql"
+            "starter-adapter/src/test/java/com/example/starter/adapter/persistence/adapter/OpenPositionsPersistenceAdapterIT.java"
           ]
         }
       }

@@ -13,11 +13,12 @@ spring:
     hibernate:
       ddl-auto: validate
     open-in-view: false
-  batch:
-    jdbc:
-      # The batch metadata tables are owned by the schema module like every other table:
-      # this application never creates them, whatever the environment.
-      initialize-schema: never
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
 
 app:
   client:

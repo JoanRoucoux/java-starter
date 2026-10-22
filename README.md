@@ -35,7 +35,7 @@ starter-generator portfolio --starter java --base-package com.acme.portfolio \
   --modules schema,batch --openapi ../specs/portfolio.yaml
 ```
 
-`--modules ""` generates an API with no database at all: the persistence adapter, the JPA dependencies and the position demo go away, and what remains is a service orchestrating external APIs. `--modules schema` is the default. `batch` requires `schema` (Spring Batch needs a JDBC job repository, whose tables the schema module owns).
+`--modules ""` generates an API with no database at all: the persistence adapter, the JPA dependencies and the position demo go away, and what remains is a service orchestrating external APIs. `--modules schema` is the default. `batch` requires `schema` (the demo job reads and writes positions).
 
 Module directories, Maven artifactIds and the Java base package take your application's identity at generation time. The demo features are **kept** as reference implementations — replace them with your own. If you provide `--openapi`, align the controllers with the regenerated interfaces afterwards (the compile errors point the way).
 
