@@ -113,7 +113,8 @@
     ".github/SECURITY.md",
     ".github/ISSUE_TEMPLATE",
     ".github/PULL_REQUEST_TEMPLATE.md",
-    ".github/workflows/release-please.yml"
+    ".github/workflows/release-please.yml",
+    ".github/workflows/dependabot-auto-merge.yml"
   ],
   "rename": [
     { "from": "starter-domain", "to": "{{appName}}-domain" },
