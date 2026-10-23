@@ -54,6 +54,7 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 - A `TechnicalException` message names the dependency, never the upstream response; the full text goes to the log through the cause.
 - A constraint violation on a path or query parameter answers 400 (`ApiExceptionHandler`), not 500.
 - Sibling modules are depended on through an explicit version property (`${starter-domain.version}`, `${starter-adapter.version}`, ...), never `${project.version}`; that would silently mean the wrong thing once a module is extracted.
+- Dependabot runs monthly with a 7-day cooldown. Minor and patch updates merge themselves through `.github/workflows/dependabot-auto-merge.yml` once the required checks pass, and majors are reviewed by hand. The README names major versions only, since the exact ones live in the manifests Dependabot bumps.
 
 ## Logging
 
@@ -123,3 +124,4 @@ Keep them in sync with the starter:
 - GitHub Actions in `.github/workflows/` are pinned by commit SHA (Dependabot keeps them updated); when adding one, pin it the same way.
 - **`cucumber-junit-platform-engine` is pinned (`cucumber.version`, 8.0.4) to a release built against the JUnit Platform line Spring Boot manages** (junit-jupiter 6.0.3 with Boot 4.1.1): this project's `dependencyManagement` always wins the resolved JUnit version, never Cucumber's, so a Cucumber that needs a newer JUnit Platform fails at test discovery with `NoClassDefFoundError`. Re-check the pairing before bumping Spring Boot or Cucumber.
 - **`CucumberIT` always reports "Tests run: 0"** in the Surefire/Failsafe console summary: Cucumber's dynamic per-scenario test tree isn't counted the same way as JUnit Jupiter's. This is cosmetic, not a sign the suite didn't run: `cucumber.plugin=pretty,summary` (`junit-platform.properties`) prints the real scenario/step counts right above it, and a genuine scenario failure still fails the build.
+- A merge made with `GITHUB_TOKEN` triggers no `push` workflow, which is why `dependabot-auto-merge.yml` uses the `DEPENDABOT_MERGE_TOKEN` secret when it exists.

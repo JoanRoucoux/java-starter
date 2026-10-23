@@ -3,7 +3,9 @@ updates:
   - package-ecosystem: maven
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
+    cooldown:
+      default-days: 7
     groups:
       dependencies:
         patterns:
@@ -13,6 +15,8 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 7
     groups:
       actions:
         patterns:
@@ -31,7 +35,9 @@ updates:
       - /starter-schema
       # /module:schema
     schedule:
-      interval: weekly
+      interval: monthly
+    cooldown:
+      default-days: 7
     groups:
       images:
         patterns:
@@ -46,6 +52,8 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    cooldown:
+      default-days: 7
     ignore:
       - dependency-name: postgres
         update-types: ['version-update:semver-major']
