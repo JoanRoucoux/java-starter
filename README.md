@@ -1,6 +1,4 @@
 <img src=".github/assets/banner.png" alt="Java Starter: Spring Boot starter in hexagonal architecture" />
-<br>
-<br>
 
 [![CI](https://github.com/JoanRoucoux/java-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/JoanRoucoux/java-starter/actions/workflows/ci.yml)
 ![Java](https://img.shields.io/badge/Java-25-orange)
