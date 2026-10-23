@@ -1,34 +1,45 @@
 <img src=".github/assets/banner.png" alt="Java Starter: Spring Boot starter in hexagonal architecture" />
 
 [![CI](https://github.com/JoanRoucoux/java-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/JoanRoucoux/java-starter/actions/workflows/ci.yml)
-![Java](https://img.shields.io/badge/Java-25-orange)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-brightgreen)
+[![Release](https://img.shields.io/github/v/release/JoanRoucoux/java-starter)](https://github.com/JoanRoucoux/java-starter/releases)
+[![Java](https://img.shields.io/badge/Java-25-orange)](https://openjdk.org)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-brightgreen)](https://spring.io/projects/spring-boot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Spring Boot starter for backends in **hexagonal architecture**, built as **separate modules you pick from**: `-domain` (framework-free model, ports, services), `-adapter` (their implementations) and `-api` (Spring Boot main + REST exposition) always, plus `-schema` (Liquibase changelogs and the PostgreSQL persistence they own) when there is a database, `-batch` (Spring Batch over the same hexagon) when there are jobs, and `-kafka` (a worker consuming the events the API publishes) when other systems react to what it writes. Built to back a frontend application (see [angular-starter-web](https://github.com/JoanRoucoux/angular-starter-web)) and attach to a database and/or one or more external APIs.
 
 There is **no parent pom**. The `pom.xml` at the root only aggregates: no module inherits from it; each one is parented by `spring-boot-starter-parent` and carries its own dependencies and quality gates. A module can therefore be dropped, or moved to its own repository, without touching anything else.
 
-## Stack
+## The starters
 
-| Tool                                     | Role                                                         |
-| ---------------------------------------- | ------------------------------------------------------------ |
-| Spring Boot 4.1 / Java 25                | Application framework, Maven modules with wrapper            |
-| openapi-generator (contract-first)       | `openapi/openapi.yaml` -> generated interfaces + DTOs        |
-| Spring Security (OAuth2 resource server) | Stateless JWT validation                                     |
-| Spring Data JPA + PostgreSQL             | Persistence adapter (`schema` module)                        |
-| Liquibase (`-schema` module)             | Versioned changelogs, applied out-of-band; never by an app  |
-| Spring Batch (`-batch` module)           | Chunk-oriented jobs over the same domain as the API          |
-| Spring Kafka (`-kafka` module)           | `position.opened` event published by the API, consumed by a worker |
-| RestClient                               | External API client adapter (timeouts via properties)        |
-| Micrometer Tracing + ECS JSON            | One log line per use case, trace ids; `LOGGING_STRUCTURED_FORMAT_CONSOLE=ecs` in production |
-| Testcontainers, WireMock, ArchUnit       | Integration tests, client tests, architecture enforcement    |
-| Cucumber                                 | Business-scenario acceptance tests, over real HTTP           |
-| Spotless (palantir-java-format), JaCoCo  | Formatting and coverage gates                                |
+| Repository                                                                | What it generates                                         |
+| ------------------------------------------------------------------------- | --------------------------------------------------------- |
+| [angular-starter-web](https://github.com/JoanRoucoux/angular-starter-web) | An Angular web application connected to a backend         |
+| [angular-starter-ui](https://github.com/JoanRoucoux/angular-starter-ui)   | An Angular design system: component library and Storybook |
+| [java-starter](https://github.com/JoanRoucoux/java-starter) (this one)    | A Spring Boot backend in hexagonal architecture           |
 
-## Generating an application
+Create an application from any of them with [starter-generator](https://github.com/JoanRoucoux/starter-generator).
 
-New applications are scaffolded with [starter-generator](https://github.com/JoanRoucoux/starter-generator), which asks which optional modules you want:
+## Tech stack
+
+| Tool                                                                                                                 | Role                                                                                        |
+| -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [Spring Boot](https://spring.io/projects/spring-boot) / Java                                                         | Application framework, Maven modules with wrapper                                           |
+| [openapi-generator](https://openapi-generator.tech) (contract-first)                                                 | `openapi/openapi.yaml` -> generated interfaces + DTOs                                       |
+| Spring Security (OAuth2 resource server)                                                                             | Stateless JWT validation                                                                    |
+| Spring Data JPA + PostgreSQL                                                                                         | Persistence adapter (`schema` module)                                                       |
+| [Liquibase](https://www.liquibase.com) (`-schema` module)                                                            | Versioned changelogs, applied out-of-band; never by an app                                  |
+| Spring Batch (`-batch` module)                                                                                       | Chunk-oriented jobs over the same domain as the API                                         |
+| Spring Kafka (`-kafka` module)                                                                                       | `position.opened` event published by the API, consumed by a worker                          |
+| RestClient                                                                                                           | External API client adapter (timeouts via properties)                                       |
+| Micrometer Tracing + ECS JSON                                                                                        | One log line per use case, trace ids; `LOGGING_STRUCTURED_FORMAT_CONSOLE=ecs` in production |
+| [Testcontainers](https://testcontainers.com), [WireMock](https://wiremock.org), [ArchUnit](https://www.archunit.org) | Integration tests, client tests, architecture enforcement                                   |
+| [Cucumber](https://cucumber.io)                                                                                      | Business-scenario acceptance tests, over real HTTP                                          |
+| [Spotless](https://github.com/diffplug/spotless) (palantir-java-format), JaCoCo                                      | Formatting and coverage gates                                                               |
+
+## Getting started
+
+Generate an application from this starter with [starter-generator](https://github.com/JoanRoucoux/starter-generator), which asks which optional modules you want:
 
 ```bash
 starter-generator portfolio --starter java --base-package com.acme.portfolio \
@@ -39,19 +50,28 @@ starter-generator portfolio --starter java --base-package com.acme.portfolio \
 
 Module directories, Maven artifactIds and the Java base package take your application's identity at generation time. The demo features are **kept** as reference implementations; replace them with your own. If you provide `--openapi`, align the controllers with the regenerated interfaces afterwards (the compile errors point the way).
 
-## Getting started
-
-Prerequisites: **JDK 25** and **Docker** (PostgreSQL via Testcontainers and Docker Compose). Maven comes with the wrapper.
+Then run it. Prerequisites: **JDK 25** and **Docker** (PostgreSQL via Testcontainers and Docker Compose). Maven comes with the wrapper.
 
 ```bash
-./mvnw verify                                # build + unit/integration tests + architecture + coverage
-docker compose up -d --wait                  # starts PostgreSQL and applies the schema (compose.yaml); no app ever migrates it itself
-./mvnw spring-boot:run -pl starter-api       # starts the same stack when it is down, then the API on :8080
-./mvnw spring-boot:run -pl starter-batch     # runs the demo job, then exits
-./mvnw spring-boot:run -pl starter-kafka     # starts the broker (compose profile kafka) and the worker
+./mvnw verify                             # build + unit/integration tests + architecture + coverage
+docker compose up -d --wait               # starts PostgreSQL and applies the schema (compose.yaml)
+./mvnw spring-boot:run -pl starter-api    # the API on :8080
 ```
 
-The `schema` service of the compose file migrates PostgreSQL from the repository; after adding a changeset, `docker compose up -d --build schema` or `./mvnw liquibase:update -pl starter-schema` applies it. Starting or restarting an application never touches the schema. Each runnable module has its own image, built from the repository root: `docker build -f starter-api/Dockerfile .` (likewise `starter-batch`, `starter-kafka`, `starter-schema`). Without an identity provider, activate the `local` profile to disable authentication: `./mvnw spring-boot:run -pl starter-api -Dspring-boot.run.profiles=local`.
+### Commands
+
+| Command                                                                               | Description                                                                                                    |
+| ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `./mvnw verify`                                                                       | Build + unit/integration tests + architecture + coverage                                                       |
+| `docker compose up -d --wait`                                                         | Starts PostgreSQL and applies the schema (compose.yaml); no app ever migrates it itself                        |
+| `./mvnw spring-boot:run -pl starter-api`                                              | Starts the same stack when it is down, then the API on :8080                                                   |
+| `./mvnw spring-boot:run -pl starter-api -Dspring-boot.run.profiles=local`             | Same, with authentication disabled (no identity provider needed)                                               |
+| `./mvnw spring-boot:run -pl starter-batch`                                            | Runs the demo job, then exits                                                                                  |
+| `./mvnw spring-boot:run -pl starter-kafka`                                            | Starts the broker (compose profile `kafka`) and the worker                                                     |
+| `docker compose up -d --build schema` or `./mvnw liquibase:update -pl starter-schema` | Applies a new changeset                                                                                        |
+| `docker build -f starter-api/Dockerfile .`                                            | Builds a module's image from the repository root (likewise `starter-batch`, `starter-kafka`, `starter-schema`) |
+
+The `schema` service of the compose file migrates PostgreSQL from the repository. Starting or restarting an application never touches the schema.
 
 ## Project structure
 
