@@ -6,20 +6,11 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.1-brightgreen)](https://spring.io/projects/spring-boot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Spring Boot starter for backends in **hexagonal architecture**, built as **separate modules you pick from**: `-domain` (framework-free model, ports, services), `-adapter` (their implementations) and `-api` (Spring Boot main + REST exposition) always, plus `-schema` (Liquibase changelogs and the PostgreSQL persistence they own) when there is a database, `-batch` (Spring Batch over the same hexagon) when there are jobs, and `-kafka` (a worker consuming the events the API publishes) when other systems react to what it writes. Built to back a frontend application (see [angular-starter-web](https://github.com/JoanRoucoux/angular-starter-web)) and attach to a database and/or one or more external APIs.
+Spring Boot starter for backends in **hexagonal architecture**, built as **separate modules you pick from**: `-domain` (framework-free model, ports, services), `-adapter` (their implementations) and `-api` (Spring Boot main + REST exposition) always, plus `-schema` (Liquibase changelogs and the PostgreSQL persistence they own) when there is a database, `-batch` (Spring Batch over the same hexagon) when there are jobs, and `-kafka` (a worker consuming the events the API publishes) when other systems react to what it writes. Built to back a frontend application and attach to a database and/or one or more external APIs.
 
 There is **no parent pom**. The `pom.xml` at the root only aggregates: no module inherits from it; each one is parented by `spring-boot-starter-parent` and carries its own dependencies and quality gates. A module can therefore be dropped, or moved to its own repository, without touching anything else.
 
-## The starters
-
-| Repository                                                                | What it generates                                         |
-| ------------------------------------------------------------------------- | --------------------------------------------------------- |
-| [angular-starter-web](https://github.com/JoanRoucoux/angular-starter-web) | An Angular web application connected to a backend         |
-| [angular-starter-ui](https://github.com/JoanRoucoux/angular-starter-ui)   | An Angular design system: component library and Storybook |
-| [react-starter-web](https://github.com/JoanRoucoux/react-starter-web)     | A React web application connected to a backend            |
-| [java-starter](https://github.com/JoanRoucoux/java-starter) (this one)    | A Spring Boot backend in hexagonal architecture           |
-
-Create an application from any of them with [starter-generator](https://github.com/JoanRoucoux/starter-generator).
+This starter is part of a family: [starter-generator](https://github.com/JoanRoucoux/starter-generator) lists them all and creates an application from any of them.
 
 ## Tech stack
 
@@ -117,7 +108,7 @@ Two complete hexagonal slices, both meant to be replaced:
 2. `./mvnw compile` regenerates the interfaces and DTOs (`*.generated.api`, `*.generated.model`: build output, never edited, never committed).
 3. Implement the new interface methods in a controller, mapping DTOs to the domain through the inbound ports.
 
-The same spec can drive the frontend's generated client (Orval in angular-starter-web).
+The same spec can drive the frontend's generated client (with Orval, for example).
 
 ## Testing
 
