@@ -1,6 +1,9 @@
 spring:
   application:
     name: starter-api
+  mvc:
+    problemdetails:
+      enabled: true
   # module:schema
   docker:
     compose:

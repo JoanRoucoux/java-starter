@@ -30,10 +30,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/QuoteResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         '422':
           description: Unknown instrument
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         '502':
           description: Market data provider unavailable
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   # module:schema
   /position:
     post:
@@ -53,8 +67,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PositionResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         '422':
           description: Unknown instrument
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '502':
+          description: Market data provider unavailable
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /position/{id}:
     get:
       tags: [Position]
@@ -74,6 +104,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PositionResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
         '404':
           description: Position not found
   # /module:schema
@@ -89,6 +125,23 @@ components:
         price:
           type: number
           example: 123.45
+    Problem:
+      type: object
+      description: Problem detail (RFC 9457)
+      properties:
+        type:
+          type: string
+          format: uri-reference
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri-reference
     # module:schema
     CreatePositionRequest:
       type: object

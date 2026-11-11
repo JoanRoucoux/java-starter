@@ -52,7 +52,7 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 - Schema changes only through `starter-schema`'s Liquibase changesets (`ddl-auto: validate` will fail otherwise). New changesets are Liquibase formatted SQL files (`--liquibase formatted sql`, then `--changeset starter:003-add-index`): ids are sequential and descriptive, the author is the application name. The generator rewrites the author in `.sql` files, so a generated application owns its changesets from day one. `changelog-master.xml` stays XML (`includeAll`).
 - Any number the API reads must fit its column: `BoundedDecimalDeserializer` (`application/json`) refuses a `BigDecimal` the demo `numeric(19,4)` cannot hold with a 400, before any arithmetic runs. Change the bounds in `DecimalBounds` together with the column.
 - A `TechnicalException` message names the dependency, never the upstream response; the full text goes to the log through the cause.
-- A constraint violation on a path or query parameter answers 400 (`ApiExceptionHandler`), not 500.
+- Every error body is a problem detail (`application/problem+json`), 400 included: a constraint violation on a path or query parameter answers 400 (`ApiExceptionHandler`), not 500.
 - Sibling modules are depended on through an explicit version property (`${starter-domain.version}`, `${starter-adapter.version}`, ...), never `${project.version}`; that would silently mean the wrong thing once a module is extracted.
 - Dependabot runs monthly with a 7-day cooldown. Minor and patch updates merge themselves through `.github/workflows/dependabot-auto-merge.yml` once the required checks pass, and majors are reviewed by hand. The README names major versions only, since the exact ones live in the manifests Dependabot bumps.
 
