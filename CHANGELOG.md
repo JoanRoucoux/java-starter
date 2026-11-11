@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/JoanRoucoux/java-starter/compare/v1.1.0...v1.1.1) (2026-11-11)
+
+
+### Bug Fixes
+
+* answer every error as a problem detail ([#45](https://github.com/JoanRoucoux/java-starter/issues/45)) ([2872484](https://github.com/JoanRoucoux/java-starter/commit/2872484c5fb763d4499d901dc764bac231d65089))
+
 ## [1.1.0](https://github.com/JoanRoucoux/java-starter/compare/v1.0.0...v1.1.0) (2026-10-22)
 
 
