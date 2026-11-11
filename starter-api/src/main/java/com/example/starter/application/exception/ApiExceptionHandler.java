@@ -31,7 +31,7 @@ class ApiExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    ProblemDetail handleInvalidParameter(ConstraintViolationException exception) {
+    ProblemDetail handleInvalidParameter() {
         ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problem.setTitle("Invalid request parameter");
         return problem;
