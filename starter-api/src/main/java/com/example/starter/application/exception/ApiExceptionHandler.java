@@ -2,9 +2,7 @@ package com.example.starter.application.exception;
 
 import com.example.starter.domain.exception.business.BusinessException;
 import com.example.starter.domain.exception.technical.TechnicalException;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolationException;
-import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -33,7 +31,9 @@ class ApiExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    void handleInvalidParameter(HttpServletResponse response) throws IOException {
-        response.sendError(HttpStatus.BAD_REQUEST.value());
+    ProblemDetail handleInvalidParameter(ConstraintViolationException exception) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problem.setTitle("Invalid request parameter");
+        return problem;
     }
 }

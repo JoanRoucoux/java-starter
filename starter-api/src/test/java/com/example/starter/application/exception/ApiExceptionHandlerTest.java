@@ -8,6 +8,8 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.example.starter.domain.exception.business.UnknownInstrumentException;
 import com.example.starter.domain.exception.technical.MarketDataUnavailableException;
+import jakarta.validation.ConstraintViolationException;
+import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,5 +51,14 @@ class ApiExceptionHandlerTest {
         handler.handleBusiness(new UnknownInstrumentException("US0378331005"));
 
         assertThat(appender.list).isEmpty();
+    }
+
+    @Test
+    void answersAnInvalidParameterAsABadRequestProblemWithoutEchoingTheViolation() {
+        var problem = handler.handleInvalidParameter(new ConstraintViolationException("isin: secret", Set.of()));
+
+        assertThat(problem.getStatus()).isEqualTo(400);
+        assertThat(problem.getTitle()).isEqualTo("Invalid request parameter");
+        assertThat(problem.getDetail()).isNull();
     }
 }
