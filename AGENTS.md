@@ -92,6 +92,7 @@ Keep them in sync with the starter:
 
 ## Gotchas
 
+- **The packaged `application.yml` holds no local value and no default for a connection target**: a missing production variable stops the application at startup, and `PackagedConfigurationTest` (one per application module) fails on `localhost`, `127.0.0.1` or any `${NAME:default}` placeholder. Local values live in `<module>/config/application.yml`, read from the working directory (the module directory for `spring-boot:run`, `test-run`, Surefire and Failsafe) and never packaged: the Dockerfile runtime stage copies the jar only. The datasource comes from Docker Compose locally and from `@ServiceConnection` in tests.
 - **The open security chain exists in test sources only** (`OpenSecurityConfig`, used by `CucumberSpringConfiguration` and `LocalApplication`), so no property or profile can open the production jar. Local runs without an identity provider use `./mvnw spring-boot:test-run -pl starter-api` (`LocalApplication`).
 - The aggregator declares the Spotless plugin although it holds no Java: `spotless:check` from the root resolves the plugin prefix per project and fails on any project that lacks it.
 - The table is named `positions` (plural): `POSITION` is a reserved word in PostgreSQL.

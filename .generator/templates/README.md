@@ -65,6 +65,18 @@ Each runnable module has its own image, built from the repository root: `docker 
 
 Without an identity provider, run the API with authentication disabled: `./mvnw spring-boot:test-run -pl {{appName}}-api`.
 
+The packaged `application.yml` holds no local value, so an application fails at startup when production leaves a variable unset. Production sets:
+
+- `JWT_ISSUER_URI` and `MARKET_DATA_BASE_URL`
+<!-- module:schema -->
+- `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD`
+<!-- /module:schema -->
+<!-- module:kafka -->
+- `KAFKA_BOOTSTRAP_SERVERS`
+<!-- /module:kafka -->
+
+Local values live in each module's `config/application.yml`, read from the working directory and never packaged.
+
 ## Project structure
 
 ```

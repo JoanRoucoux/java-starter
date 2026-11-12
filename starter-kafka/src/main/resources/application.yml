@@ -1,7 +1,7 @@
 app:
   client:
     market-data:
-      base-url: http://localhost:8082
+      base-url: ${MARKET_DATA_BASE_URL}
       connect-timeout: 2s
       read-timeout: 5s
 
@@ -20,7 +20,7 @@ spring:
     web-application-type: none
     keep-alive: true
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     template:
       observation-enabled: true
     listener:
@@ -38,9 +38,6 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       auto-offset-reset: latest
   datasource:
-    url: jdbc:postgresql://localhost:5432/app
-    username: app
-    password: app
     hikari:
       maximum-pool-size: 3
   jpa:

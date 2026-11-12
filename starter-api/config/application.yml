@@ -1,0 +1,15 @@
+spring:
+  # module:kafka
+  kafka:
+    bootstrap-servers: localhost:9092
+  # /module:kafka
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/realms/local
+
+app:
+  client:
+    market-data:
+      base-url: http://localhost:8082
