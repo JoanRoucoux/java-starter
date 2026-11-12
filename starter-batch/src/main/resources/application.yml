@@ -11,7 +11,7 @@ spring:
       # /module:kafka
   # module:kafka
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
     template:
       observation-enabled: true
     producer:
@@ -23,10 +23,6 @@ spring:
         request.timeout.ms: 5000
         linger.ms: 0
   # /module:kafka
-  datasource:
-    url: jdbc:postgresql://localhost:5432/app
-    username: app
-    password: app
   jpa:
     hibernate:
       ddl-auto: validate
@@ -41,7 +37,7 @@ spring:
 app:
   client:
     market-data:
-      base-url: http://localhost:8082
+      base-url: ${MARKET_DATA_BASE_URL}
       connect-timeout: 2s
       read-timeout: 5s
 
