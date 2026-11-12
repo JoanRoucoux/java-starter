@@ -63,7 +63,7 @@ The worker starts the broker (compose profile `kafka`) and consumes what the API
 <!-- /module:kafka -->
 Each runnable module has its own image, built from the repository root: `docker build -f {{appName}}-api/Dockerfile .`.
 
-Without an identity provider, activate the `local` profile to disable authentication: `./mvnw spring-boot:run -pl {{appName}}-api -Dspring-boot.run.profiles=local`.
+Without an identity provider, run the API with authentication disabled: `./mvnw spring-boot:test-run -pl {{appName}}-api`.
 
 ## Project structure
 
