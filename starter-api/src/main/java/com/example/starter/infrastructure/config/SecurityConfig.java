@@ -1,6 +1,5 @@
 package com.example.starter.infrastructure.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -14,15 +13,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
     @Bean
-    SecurityFilterChain securityFilterChain(
-            HttpSecurity http, @Value("${app.security.permit-all:false}") boolean permitAll) throws Exception {
-        http.csrf(CsrfConfigurer::disable)
-                .sessionManagement(sessions -> sessions.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        if (permitAll) {
-            return http.authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
-                    .build();
-        }
-        return http.authorizeHttpRequests(requests -> requests.requestMatchers("/actuator/health/**")
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http.csrf(CsrfConfigurer::disable)
+                .sessionManagement(sessions -> sessions.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(requests -> requests.requestMatchers("/actuator/health/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
