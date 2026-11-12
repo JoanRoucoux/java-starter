@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.2.0](https://github.com/JoanRoucoux/java-starter/compare/v1.1.1...v1.2.0) (2026-11-12)
+
+
+### Features
+
+* validate the token audience and authorize writes by scope ([#50](https://github.com/JoanRoucoux/java-starter/issues/50)) ([16f0d4c](https://github.com/JoanRoucoux/java-starter/commit/16f0d4c5287caf2b3d65cca934c880d1eb36036e))
+
+
+### Bug Fixes
+
+* fail at startup when production configuration is missing ([#49](https://github.com/JoanRoucoux/java-starter/issues/49)) ([f6dd871](https://github.com/JoanRoucoux/java-starter/commit/f6dd8717504effc842a891d38e305655b3291992))
+* keep the open security chain out of the production jar ([#47](https://github.com/JoanRoucoux/java-starter/issues/47)) ([c6b884b](https://github.com/JoanRoucoux/java-starter/commit/c6b884bbd0b7cdb9456abcbea8c8de45a3ecd0e3))
+
 ## [1.1.1](https://github.com/JoanRoucoux/java-starter/compare/v1.1.0...v1.1.1) (2026-11-11)
 
 
