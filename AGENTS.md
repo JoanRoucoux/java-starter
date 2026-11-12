@@ -53,6 +53,7 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 - Any number the API reads must fit its column: `BoundedDecimalDeserializer` (`application/json`) refuses a `BigDecimal` the demo `numeric(19,4)` cannot hold with a 400, before any arithmetic runs. Change the bounds in `DecimalBounds` together with the column.
 - A `TechnicalException` message names the dependency, never the upstream response; the full text goes to the log through the cause.
 - Every error body is a problem detail (`application/problem+json`), 400 included: a constraint violation on a path or query parameter answers 400 (`ApiExceptionHandler`), not 500.
+- Protect an endpoint with an `EndpointAuthorization` bean in its slice's own configuration class (`PositionSecurityConfig` requires the authority `SCOPE_positions:write` on creating a position), never with a slice name in `SecurityConfig`. Controller tests import the slice's security configuration; the open chain needs no change.
 - Sibling modules are depended on through an explicit version property (`${starter-domain.version}`, `${starter-adapter.version}`, ...), never `${project.version}`; that would silently mean the wrong thing once a module is extracted.
 - Dependabot runs monthly with a 7-day cooldown. Minor and patch updates merge themselves through `.github/workflows/dependabot-auto-merge.yml` once the required checks pass, and majors are reviewed by hand. The README names major versions only, since the exact ones live in the manifests Dependabot bumps.
 

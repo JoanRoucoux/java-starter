@@ -19,6 +19,7 @@ This starter is part of a family: [starter-generator](https://github.com/JoanRou
 | [Spring Boot](https://spring.io/projects/spring-boot) / Java                                                         | Application framework, Maven modules with wrapper                                           |
 | [openapi-generator](https://openapi-generator.tech) (contract-first)                                                 | `openapi/openapi.yaml` -> generated interfaces + DTOs                                       |
 | Spring Security (OAuth2 resource server)                                                                             | Stateless JWT validation                                                                    |
+| JWT audience validation, scope based authorization                                                                   | `JWT_AUDIENCE` is checked; creating a position needs the scope `positions:write`            |
 | Spring Data JPA + PostgreSQL                                                                                         | Persistence adapter (`schema` module)                                                       |
 | [Liquibase](https://www.liquibase.com) (`-schema` module)                                                            | Versioned changelogs, applied out-of-band; never by an app                                  |
 | Spring Batch (`-batch` module)                                                                                       | Chunk-oriented jobs over the same domain as the API                                         |
@@ -65,7 +66,7 @@ docker compose up -d --wait               # starts PostgreSQL and applies the sc
 
 The `schema` service of the compose file migrates PostgreSQL from the repository. Starting or restarting an application never touches the schema.
 
-The packaged `application.yml` holds no local value, so an application fails at startup when production leaves a variable unset. Production sets `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD` (all three applications), `JWT_ISSUER_URI` (`starter-api`), `MARKET_DATA_BASE_URL` (all three) and `KAFKA_BOOTSTRAP_SERVERS` (`starter-kafka`, plus the other two when the kafka module is generated). Local values live in each module's `config/application.yml`, read from the working directory and never packaged; the datasource comes from Docker Compose locally and from Testcontainers in tests.
+The packaged `application.yml` holds no local value, so an application fails at startup when production leaves a variable unset. Production sets `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD` (all three applications), `JWT_ISSUER_URI` and `JWT_AUDIENCE` (`starter-api`), `MARKET_DATA_BASE_URL` (all three) and `KAFKA_BOOTSTRAP_SERVERS` (`starter-kafka`, plus the other two when the kafka module is generated). Local values live in each module's `config/application.yml`, read from the working directory and never packaged; the datasource comes from Docker Compose locally and from Testcontainers in tests.
 
 ## Project structure
 

@@ -52,6 +52,10 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 - Any number the API reads must fit its column: `BoundedDecimalDeserializer` (`application/json`) refuses a `BigDecimal` the demo `numeric(19,4)` cannot hold with a 400, before any arithmetic runs. Change the bounds in `DecimalBounds` together with the column.
 - A `TechnicalException` message names the dependency, never the upstream response; the full text goes to the log through the cause.
 - Every error body is a problem detail (`application/problem+json`), 400 included: a constraint violation on a path or query parameter answers 400 (`ApiExceptionHandler`), not 500.
+- Protect an endpoint with an `EndpointAuthorization` bean in its slice's own configuration class, with the authority `SCOPE_<scope>` (Spring Security's mapping of the `scope` claim), never with a slice name in `SecurityConfig`. Controller tests import the slice's security configuration; the open chain needs no change.
+<!-- module:schema -->
+- `PositionSecurityConfig` is the example: creating a position requires `SCOPE_positions:write`.
+<!-- /module:schema -->
 - Sibling modules are depended on through an explicit version property (`{{appName}}-domain.version` and friends), never `${project.version}`; that would silently mean the wrong thing once a module is extracted.
 <!-- module:schema -->
 - Schema changes only through `{{appName}}-schema`'s Liquibase changesets (`ddl-auto: validate` will fail otherwise). New changesets are Liquibase formatted SQL files (`--liquibase formatted sql`, then `--changeset {{appName}}:003-add-index`): ids are sequential and descriptive, the author is the application name. `changelog-master.xml` stays XML (`includeAll`).
@@ -84,7 +88,10 @@ Before considering a change done, run the same pipeline as CI: `spotless:check` 
 
 ## Gotchas
 
-- **The packaged `application.yml` holds no local value and no default for a connection target**: a missing production variable stops the application at startup, and `PackagedConfigurationTest` (one per application module) fails on `localhost`, `127.0.0.1` or any `${NAME:default}` placeholder. Local values live in `<module>/config/application.yml`, read from the working directory (the module directory for `spring-boot:run`, `test-run`, Surefire and Failsafe) and never packaged: the Dockerfile runtime stage copies the jar only. The datasource comes from Docker Compose locally and from `@ServiceConnection` in tests.
+- **The packaged `application.yml` holds no local value and no default for a connection target**: a missing production variable stops the application at startup, and `PackagedConfigurationTest` (one per application module) fails on `localhost`, `127.0.0.1` or any `${NAME:default}` placeholder. Local values live in `<module>/config/application.yml`, read from the working directory (the module directory for `spring-boot:run`, `test-run`, Surefire and Failsafe) and never packaged: the Dockerfile runtime stage copies the jar only.
+<!-- module:schema -->
+- The datasource is in no configuration file: it comes from Docker Compose locally, from `@ServiceConnection` in tests and from `SPRING_DATASOURCE_*` in production.
+<!-- /module:schema -->
 - **The open security chain exists in test sources only** (`OpenSecurityConfig`, used by `CucumberSpringConfiguration` and `LocalApplication`), so no property or profile can open the production jar. Local runs without an identity provider use `./mvnw spring-boot:test-run -pl {{appName}}-api` (`LocalApplication`).
 - **Each runnable module has its own `Dockerfile`, built from the repository root** (`docker build -f {{appName}}-api/Dockerfile .`): the build stage copies the whole tree, and the jar paths are globs (`*-api/target/*.jar`) so no rename rule is needed. The runtime stage runs as the unprivileged user `app` and the entrypoint sizes the JVM to the container (`-XX:MaxRAMPercentage=60 -XX:+ExitOnOutOfMemoryError`). The build image stays on the runtime's JDK (Java 25): a JDK bump changes both together.
 - **`{{appName}}-adapter` declares `spring-web` and `spring-boot-restclient` itself**: `spring-web` is where `RestClient` lives and it is not pulled in transitively, and `spring-boot-restclient` provides the `RestClient.Builder` bean.

@@ -11,6 +11,7 @@ There is no parent pom: the root `pom.xml` only aggregates, and every module is 
 | Spring Boot 4.1 / Java 25                | Application framework, Maven modules with wrapper           |
 | openapi-generator (contract-first)       | `{{appName}}-api/openapi/openapi.yaml` -> interfaces + DTOs  |
 | Spring Security (OAuth2 resource server) | Stateless JWT validation                                    |
+| JWT audience, scope authorization        | Audience checked; endpoints protected per scope             |
 | RestClient                               | External API client adapter (timeouts via properties)       |
 <!-- module:kafka -->
 | Spring Kafka (`{{appName}}-kafka`)       | `position.opened` event published by the API, consumed by a worker |
@@ -67,7 +68,7 @@ Without an identity provider, run the API with authentication disabled: `./mvnw 
 
 The packaged `application.yml` holds no local value, so an application fails at startup when production leaves a variable unset. Production sets:
 
-- `JWT_ISSUER_URI` and `MARKET_DATA_BASE_URL`
+- `JWT_ISSUER_URI`, `JWT_AUDIENCE` and `MARKET_DATA_BASE_URL`
 <!-- module:schema -->
 - `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME` and `SPRING_DATASOURCE_PASSWORD`
 <!-- /module:schema -->

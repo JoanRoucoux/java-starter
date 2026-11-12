@@ -7,6 +7,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -16,6 +17,7 @@ import com.example.starter.domain.exception.technical.MarketDataUnavailableExcep
 import com.example.starter.domain.model.Position;
 import com.example.starter.domain.port.in.CreatePositionUseCase;
 import com.example.starter.domain.port.in.GetPositionUseCase;
+import com.example.starter.infrastructure.config.PositionSecurityConfig;
 import com.example.starter.infrastructure.config.SecurityConfig;
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -25,12 +27,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 @WebMvcTest(PositionController.class)
-@Import({SecurityConfig.class, PositionRestMapper.class})
+@Import({SecurityConfig.class, PositionSecurityConfig.class, PositionRestMapper.class})
 class PositionControllerTest {
 
     private static final String CREATE_BODY = "{\"isin\":\"US0378331005\",\"quantity\":10}";
@@ -53,12 +57,41 @@ class PositionControllerTest {
     }
 
     @Test
+    void forbidsCreatingAPositionWithoutTheWriteScope() throws Exception {
+        mockMvc.perform(post("/position")
+                        .with(jwt())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(CREATE_BODY))
+                .andExpect(status().isForbidden())
+                .andExpect(header().exists("WWW-Authenticate"))
+                .andExpect(content().string(""));
+    }
+
+    @Test
+    void rejectsCreatingAPositionWithoutAToken() throws Exception {
+        mockMvc.perform(post("/position")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(CREATE_BODY))
+                .andExpect(status().isUnauthorized())
+                .andExpect(header().exists("WWW-Authenticate"))
+                .andExpect(content().string(""));
+    }
+
+    @Test
+    void readsAPositionWithoutAnyScope() throws Exception {
+        Position position = Position.open("US0378331005", new BigDecimal("10"), new BigDecimal("123.45"));
+        when(getPosition.byId(position.id())).thenReturn(Optional.of(position));
+
+        mockMvc.perform(get("/position/{id}", position.id()).with(jwt())).andExpect(status().isOk());
+    }
+
+    @Test
     void createsAPosition() throws Exception {
         Position position = Position.open("US0378331005", new BigDecimal("10"), new BigDecimal("123.45"));
         when(createPosition.create("US0378331005", new BigDecimal("10"))).thenReturn(position);
 
         mockMvc.perform(post("/position")
-                        .with(jwt())
+                        .with(writer())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(CREATE_BODY))
                 .andExpect(status().isCreated())
@@ -72,7 +105,7 @@ class PositionControllerTest {
         when(createPosition.create(any(), any())).thenThrow(new UnknownInstrumentException("US0378331005"));
 
         mockMvc.perform(post("/position")
-                        .with(jwt())
+                        .with(writer())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(CREATE_BODY))
                 .andExpect(status().isUnprocessableEntity())
@@ -85,7 +118,7 @@ class PositionControllerTest {
                 .thenThrow(new MarketDataUnavailableException("US0378331005", new RuntimeException("boom")));
 
         mockMvc.perform(post("/position")
-                        .with(jwt())
+                        .with(writer())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(CREATE_BODY))
                 .andExpect(status().isBadGateway());
@@ -94,7 +127,7 @@ class PositionControllerTest {
     @Test
     void rejectsAnInvalidBody() throws Exception {
         mockMvc.perform(post("/position")
-                        .with(jwt())
+                        .with(writer())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"isin\":\"US0378331005\",\"quantity\":0}"))
                 .andExpect(status().isBadRequest())
@@ -104,7 +137,7 @@ class PositionControllerTest {
     @Test
     void rejectsADecimalOutsideTheColumnBounds() throws Exception {
         mockMvc.perform(post("/position")
-                        .with(jwt())
+                        .with(writer())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"isin\":\"US0378331005\",\"quantity\":1e999999999}"))
                 .andExpect(status().isBadRequest());
@@ -115,5 +148,9 @@ class PositionControllerTest {
         when(getPosition.byId(any())).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/position/{id}", UUID.randomUUID()).with(jwt())).andExpect(status().isNotFound());
+    }
+
+    private static RequestPostProcessor writer() {
+        return jwt().authorities(new SimpleGrantedAuthority("SCOPE_positions:write"));
     }
 }

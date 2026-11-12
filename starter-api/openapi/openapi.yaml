@@ -36,6 +36,8 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        '401':
+          description: Missing or invalid token
         '422':
           description: Unknown instrument
           content:
@@ -73,6 +75,10 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        '401':
+          description: Missing or invalid token
+        '403':
+          description: Token without the positions:write scope
         '422':
           description: Unknown instrument
           content:
@@ -110,10 +116,19 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
+        '401':
+          description: Missing or invalid token
         '404':
           description: Position not found
   # /module:schema
+security:
+  - bearerAuth: []
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     QuoteResponse:
       type: object

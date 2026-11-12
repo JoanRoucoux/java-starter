@@ -33,6 +33,7 @@
             "starter-api/src/main/java/com/example/starter/application/controller/PositionController.java",
             "starter-api/src/main/java/com/example/starter/application/mapper/PositionRestMapper.java",
             "starter-api/src/main/java/com/example/starter/infrastructure/config/PositionDomainConfig.java",
+            "starter-api/src/main/java/com/example/starter/infrastructure/config/PositionSecurityConfig.java",
             "starter-api/src/test/java/com/example/starter/application/controller/PositionControllerTest.java",
             "starter-api/src/test/java/com/example/starter/PersistenceArchitectureTest.java",
             "starter-api/src/test/java/com/example/starter/ApplicationIT.java",
