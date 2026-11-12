@@ -57,7 +57,7 @@ docker compose up -d --wait               # starts PostgreSQL and applies the sc
 | `./mvnw verify`                                                                       | Build + unit/integration tests + architecture + coverage                                                       |
 | `docker compose up -d --wait`                                                         | Starts PostgreSQL and applies the schema (compose.yaml); no app ever migrates it itself                        |
 | `./mvnw spring-boot:run -pl starter-api`                                              | Starts the same stack when it is down, then the API on :8080                                                   |
-| `./mvnw spring-boot:test-run -pl starter-api`                                          | Same, with authentication disabled (no identity provider needed)                                               |
+| `./mvnw spring-boot:test-run -pl starter-api`                                         | Same, with authentication disabled (no identity provider needed)                                               |
 | `./mvnw spring-boot:run -pl starter-batch`                                            | Runs the demo job, then exits                                                                                  |
 | `./mvnw spring-boot:run -pl starter-kafka`                                            | Starts the broker (compose profile `kafka`) and the worker                                                     |
 | `docker compose up -d --build schema` or `./mvnw liquibase:update -pl starter-schema` | Applies a new changeset                                                                                        |
