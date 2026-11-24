@@ -1,10 +1,12 @@
 package com.example.starter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.starter.domain.port.out.MarketDataPort;
@@ -62,7 +64,12 @@ class StructuredLoggingIT {
     void writesTheUseCaseLineAsEcsJsonWithATraceId(CapturedOutput output) throws Exception {
         when(marketDataPort.currentPrice(any())).thenReturn(Optional.of(new BigDecimal("123.45")));
 
-        mockMvc.perform(get("/quote/{isin}", "US0378331005").with(jwt())).andExpect(status().isOk());
+        String traceHeader = mockMvc.perform(
+                        get("/quote/{isin}", "US0378331005").with(jwt()))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getHeader("X-Trace-Id");
 
         JsonNode line = Arrays.stream(output.getOut().split("\\R"))
                 .filter(candidate -> candidate.contains("\"useCase\":\"GetQuote\""))
@@ -75,6 +82,13 @@ class StructuredLoggingIT {
         assertThat(line.path("durationMs").isNumber()).isTrue();
         assertThat(line.path("service").path("name").asString())
                 .isEqualTo(environment.getProperty("spring.application.name"));
-        assertThat(line.path("traceId").asString()).hasSize(32);
+        assertThat(line.path("traceId").asString()).hasSize(32).isEqualTo(traceHeader);
+    }
+
+    @Test
+    void answersARefusedRequestWithItsTraceId() throws Exception {
+        mockMvc.perform(get("/quote/{isin}", "US0378331005"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(header().string("X-Trace-Id", matchesPattern("[0-9a-f]{32}")));
     }
 }
