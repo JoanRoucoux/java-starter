@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/JoanRoucoux/java-starter/compare/v1.2.0...v1.3.0) (2026-11-24)
+
+
+### Features
+
+* **api:** answer every request with its trace id ([#53](https://github.com/JoanRoucoux/java-starter/issues/53)) ([2c510ab](https://github.com/JoanRoucoux/java-starter/commit/2c510ab0f92f184ba2d0691120da18302a1bc232))
+
 ## [1.2.0](https://github.com/JoanRoucoux/java-starter/compare/v1.1.1...v1.2.0) (2026-11-12)
 
 
